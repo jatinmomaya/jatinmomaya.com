@@ -1,6 +1,6 @@
-/* jatinmomaya.com
-   Business clarity in the structure, technical precision in the details.
-   Sans for voice, mono for metadata. */
+/* jatinmomaya.com — v3
+   A working notebook of field notes.
+   Georgia for voice, mono for metadata. */
 
 * {
   margin: 0;
@@ -21,7 +21,7 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  font-family: Georgia, 'Times New Roman', serif;
   background: var(--bg);
   color: var(--ink);
   line-height: 1.6;
@@ -58,22 +58,31 @@ body {
   margin-bottom: 4rem;
 }
 
-/* hero */
+.site-name {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--ink);
+}
 
-.hero h1 {
-  font-size: clamp(2.6rem, 7vw, 4rem);
-  font-weight: 650;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
+/* title page */
+
+.title-page h1 {
+  font-size: clamp(2.2rem, 6vw, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
   margin-bottom: 1rem;
 }
 
 .lede {
-  font-size: 1.35rem;
-  line-height: 1.45;
-  letter-spacing: -0.01em;
+  font-size: 1.25rem;
+  line-height: 1.5;
   max-width: 34ch;
   margin-bottom: 1.25rem;
+}
+
+.printing {
+  margin-bottom: 0;
 }
 
 /* sections */
@@ -83,20 +92,15 @@ section {
 }
 
 .section-label {
-  display: flex;
-  gap: 0.75rem;
-  align-items: baseline;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.8rem;
+  font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--dim);
   border-top: 1px solid var(--faint);
   padding-top: 1rem;
   margin-bottom: 1.75rem;
-}
-
-.section-label span {
-  color: var(--accent);
 }
 
 section p {
@@ -108,17 +112,52 @@ section p:last-child {
   margin-bottom: 0;
 }
 
-/* experience */
+/* field notes */
 
-.jobs {
-  list-style: none;
-}
-
-.jobs > li {
+.entries .entry {
   margin-bottom: 2.25rem;
 }
 
-.jobs > li:last-child {
+.entries .entry:last-child {
+  margin-bottom: 0;
+}
+
+.dateline {
+  margin-bottom: 0.4rem;
+}
+
+.entries h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  max-width: 60ch;
+}
+
+.entry p:not(.dateline) {
+  margin-bottom: 1rem;
+}
+
+.entry p:not(.dateline):last-child {
+  margin-bottom: 0;
+}
+
+.open-note {
+  color: var(--dim);
+  font-style: italic;
+}
+
+/* about the author */
+
+.career {
+  list-style: none;
+  margin-bottom: 1.5rem;
+}
+
+.career > li {
+  margin-bottom: 1.25rem;
+}
+
+.career > li:last-child {
   margin-bottom: 0;
 }
 
@@ -127,57 +166,28 @@ section p:last-child {
   justify-content: space-between;
   align-items: baseline;
   gap: 1rem;
-  margin-bottom: 0.15rem;
-}
-
-.job-head h3 {
-  font-size: 1.05rem;
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  margin-bottom: 0.1rem;
 }
 
 .job-head .mono {
   white-space: nowrap;
-}
-
-.job-role {
-  font-weight: 600;
-  font-size: 0.95rem;
-  margin-bottom: 0.15rem;
-}
-
-.job-role .mono {
   font-weight: 400;
 }
 
-.job-desc {
+.job-role {
+  display: block;
   color: var(--dim);
   font-size: 0.95rem;
+  margin-bottom: 0.1rem;
+}
+
+.job-line {
+  display: block;
   max-width: 58ch;
 }
 
-.sub-roles {
-  list-style: none;
-  margin-top: 0.9rem;
-}
-
-.sub-roles li {
-  margin-bottom: 1.1rem;
-  padding-left: 1rem;
-  border-left: 2px solid var(--faint);
-}
-
-.sub-roles li:last-child {
-  margin-bottom: 0;
-}
-
 /* links */
-
-.links {
-  list-style: none;
-  display: flex;
-  gap: 1.75rem;
-}
 
 a {
   color: var(--accent);
@@ -189,17 +199,16 @@ a:hover {
   border-bottom-color: var(--accent);
 }
 
-.links a {
-  font-weight: 600;
-  color: var(--ink);
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
-.links a:hover {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
+.site-header a {
+  border-bottom: none;
 }
 
-/* footer */
+/* footer (colophon) */
 
 footer {
   margin-top: 5rem;
@@ -216,6 +225,6 @@ footer {
   }
 
   .lede {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
   }
 }
