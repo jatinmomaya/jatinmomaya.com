@@ -6,6 +6,7 @@ import {
   useState,
   type CSSProperties,
   type MouseEvent,
+  type PointerEvent as ReactPointerEvent,
 } from 'react';
 import type { NavBook } from './designTokens';
 import styles from '../app/room.module.css';
@@ -35,22 +36,19 @@ const HOVER_INTENT_MS = 80;
  * The reveal is owned by React state (not CSS :hover), so the 80ms
  * hover-intent gate applies to the *whole* reveal — cover pop, book lift,
  * and spine dimming — and closing is always instant.
- * - Hover (fine pointers): cover opens after the intent delay; leaving
- *   closes immediately.
- * - Touch (no hover): first tap reveals the cover with a "go" cue, second
- *   tap follows the link.
- * - Keyboard: focusing the link reveals its cover at once; Enter follows
- *   it; Escape closes and drops focus (handled by Bookshelf).
+ *
+ * Pointer model is classified per event, never once per device: mouse/pen
+ * hover reveals after the intent delay; touch taps use the two-tap model
+ * (first tap reveals the cover, second activates). This keeps touchscreen
+ * laptops — hover-capable AND touch-capable — correct under both inputs.
+ * - Keyboard: focusing the link reveals its cover at once; Enter activates;
+ *   Escape closes and moves focus to the shelf nav (handled by Bookshelf).
  */
 export default function Book({ book, cover, peek, open, onOpen, onSelect }: BookProps) {
-  const [touchOnly, setTouchOnly] = useState(false);
   const [hoverRevealed, setHoverRevealed] = useState(false);
   const [focusRevealed, setFocusRevealed] = useState(false);
   const intentTimer = useRef<number | null>(null);
-
-  useEffect(() => {
-    setTouchOnly(window.matchMedia('(hover: none)').matches);
-  }, []);
+  const lastPointerType = useRef<string>('mouse');
 
   useEffect(
     () => () => {
@@ -63,19 +61,23 @@ export default function Book({ book, cover, peek, open, onOpen, onSelect }: Book
   // aria-expanded reports the user's own reveal, not the intro peek.
   const expanded = hoverRevealed || focusRevealed || open;
 
-  const handleMouseEnter = () => {
-    if (touchOnly) return;
+  const handlePointerEnter = (e: ReactPointerEvent<HTMLAnchorElement>) => {
+    if (e.pointerType === 'touch') return;
     if (intentTimer.current !== null) window.clearTimeout(intentTimer.current);
     intentTimer.current = window.setTimeout(() => setHoverRevealed(true), HOVER_INTENT_MS);
   };
 
-  const handleMouseLeave = () => {
+  const handlePointerLeave = (e: ReactPointerEvent<HTMLAnchorElement>) => {
+    if (e.pointerType === 'touch') return;
     if (intentTimer.current !== null) window.clearTimeout(intentTimer.current);
     setHoverRevealed(false);
   };
 
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    if (touchOnly && !open) {
+    const touchTap = lastPointerType.current === 'touch';
+    // Any activation clears a hover reveal so it can never stick.
+    setHoverRevealed(false);
+    if (touchTap && !open) {
       e.preventDefault();
       onOpen();
       return;
@@ -110,9 +112,13 @@ export default function Book({ book, cover, peek, open, onOpen, onSelect }: Book
       style={style}
       aria-label={book.title}
       aria-expanded={expanded}
+      aria-describedby={open ? 'book-open-hint' : undefined}
       onClick={handleClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onPointerDown={(e) => {
+        lastPointerType.current = e.pointerType;
+      }}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
       onFocus={() => setFocusRevealed(true)}
       onBlur={() => setFocusRevealed(false)}
     >
@@ -123,6 +129,11 @@ export default function Book({ book, cover, peek, open, onOpen, onSelect }: Book
         {cover}
         <span className={styles.go}>→</span>
       </span>
+      {open && (
+        <span id="book-open-hint" className={styles.visuallyHidden}>
+          Cover shown. Activate again to open.
+        </span>
+      )}
     </a>
   );
 }

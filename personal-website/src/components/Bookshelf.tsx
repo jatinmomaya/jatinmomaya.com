@@ -1,12 +1,16 @@
 'use client';
 
-import { useCallback, useEffect, useState, type MouseEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
+import dynamic from 'next/dynamic';
 import Book from './Book';
 import { BOOK_COVERS } from './BookCovers';
-import PhotobookOverlay from './PhotobookOverlay';
 import { INTRO, NAV_BOOKS } from './designTokens';
+import { warmPhotos } from './photobook/mexico';
 import styles from '../app/room.module.css';
+
+// The photobook only exists after a tap — keep it out of first paint.
+const PhotobookOverlay = dynamic(() => import('./PhotobookOverlay'), { ssr: false });
 
 /**
  * The oak shelf: bookend plus the navigation books, left-anchored with
@@ -23,6 +27,9 @@ export default function Bookshelf() {
   const [photobookOpen, setPhotobookOpen] = useState(false);
   const [photobookOrigin, setPhotobookOrigin] = useState<{ x: number; y: number } | null>(null);
   const [mounted, setMounted] = useState(false);
+  // Forgive the imprecise second tap: don't treat the pointerdown that
+  // follows an open as a click-away dismiss.
+  const openedAt = useRef(0);
 
   useEffect(() => setMounted(true), []);
 
@@ -41,7 +48,27 @@ export default function Bookshelf() {
     return () => timers.forEach((t) => window.clearTimeout(t));
   }, []);
 
+  // Intent preloading: the moment the Photos book shows its cover, warm
+  // the first photos so opening the book isn't a cold 4G round trip.
+  useEffect(() => {
+    if (peekId === 'photos' || openId === 'photos') warmPhotos([0, 1]);
+  }, [peekId, openId]);
+
   const closeAll = useCallback(() => setOpenId(null), []);
+
+  const handleOpen = useCallback((id: string) => {
+    openedAt.current = Date.now();
+    setOpenId(id);
+  }, []);
+
+  // Focus contract: when the photobook closes, focus returns to the
+  // Photos book that opened it.
+  const closePhotobook = useCallback(() => {
+    setPhotobookOpen(false);
+    window.setTimeout(() => {
+      document.querySelector<HTMLElement>('[data-book="photos"]')?.focus();
+    }, 0);
+  }, []);
 
   // The Photos book opens the photobook overlay in place; it grows out of
   // the book's position on the shelf.
@@ -53,18 +80,23 @@ export default function Bookshelf() {
   }, []);
 
   // Escape closes; clicking anywhere outside a book closes.
-  // Escape closes any open cover and drops focus so a keyboard-revealed
-  // cover does not linger via :focus-visible.
+  // Escape moves focus to the shelf nav so a keyboard-revealed cover
+  // closes (focus leaves the link) without dropping focus to <body>.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         closeAll();
         const active = document.activeElement as HTMLElement | null;
-        if (active && active.closest('[data-book]')) active.blur();
+        if (active && active.closest('[data-book]')) {
+          document.querySelector<HTMLElement>('[data-shelf-nav]')?.focus();
+        }
       }
     };
     const onPointerDown = (e: PointerEvent) => {
-      if (!(e.target as HTMLElement).closest('[data-book]')) closeAll();
+      if (!(e.target as HTMLElement).closest('[data-book]')) {
+        if (Date.now() - openedAt.current < 500) return;
+        closeAll();
+      }
     };
     document.addEventListener('keydown', onKey);
     document.addEventListener('pointerdown', onPointerDown);
@@ -76,7 +108,7 @@ export default function Bookshelf() {
 
   return (
     <div className={styles.shelfZone}>
-      <nav aria-label="Site sections">
+      <nav aria-label="Site sections" data-shelf-nav tabIndex={-1}>
         <p className={styles.visuallyHidden}>
           Three books on a shelf. Each book is a section of the site: hover or tap to see its cover, then open it to visit.
         </p>
@@ -93,7 +125,7 @@ export default function Bookshelf() {
                   cover={Cover ? <Cover /> : null}
                   peek={peekId === book.id}
                   open={openId === book.id}
-                  onOpen={() => setOpenId(book.id)}
+                  onOpen={() => handleOpen(book.id)}
                   onSelect={book.id === 'photos' ? openPhotobook : undefined}
                 />
               </li>
@@ -105,7 +137,7 @@ export default function Bookshelf() {
       {mounted &&
         photobookOpen &&
         createPortal(
-          <PhotobookOverlay origin={photobookOrigin} onClose={() => setPhotobookOpen(false)} />,
+          <PhotobookOverlay origin={photobookOrigin} onClose={closePhotobook} />,
           document.body,
         )}
     </div>

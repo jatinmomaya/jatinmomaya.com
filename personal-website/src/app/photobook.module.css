@@ -7,6 +7,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overscroll-behavior: none;
+  touch-action: pan-y;
   --ox: 50vw;
   --oy: 50vh;
 }
@@ -15,6 +17,7 @@
   position: absolute;
   inset: 0;
   background: rgba(24, 18, 12, 0.72);
+  -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   animation: scrimIn 0.25s ease;
 }
@@ -27,8 +30,10 @@
   position: relative;
   width: min(1060px, 94vw);
   height: min(720px, 88vh);
+  height: min(720px, 88dvh);
   background: #fffdf8;
   border-radius: 6px;
+  container-type: size;
   box-shadow:
     0 40px 90px rgba(0, 0, 0, 0.55),
     inset 0 0 60px rgba(120, 90, 40, 0.06);
@@ -117,8 +122,10 @@
 .photoButton {
   border: 0;
   padding: 0;
-  background: none;
+  background: #f3ecdd;
   cursor: zoom-in;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   max-width: 100%;
   max-height: calc(100% - 52px);
   box-shadow: 0 10px 30px rgba(40, 28, 14, 0.25);
@@ -127,7 +134,7 @@
 
 .photo {
   max-width: 100%;
-  max-height: calc(min(720px, 88vh) - 140px);
+  max-height: calc(100cqh - 150px);
   object-fit: contain;
   display: block;
 }
@@ -178,19 +185,53 @@
 .hint {
   margin-top: 44px;
   font-size: 12.5px;
-  color: #a2947f;
+  color: #6d6257;
   font-family: Georgia, serif;
   font-style: italic;
+}
+
+/* Shown on compact layouts where swipe is the primary gesture. */
+.hintMobile {
+  display: none;
+  margin-top: 30px;
+  font-size: 13px;
+  color: #6d6257;
+  font-family: Georgia, serif;
+  font-style: italic;
+}
+
+.closeBook {
+  margin-top: 26px;
+  border: 1px solid #b8a888;
+  border-radius: 999px;
+  background: transparent;
+  padding: 12px 26px;
+  font-family: Georgia, serif;
+  font-size: 15px;
+  color: #2b2620;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 44px;
+}
+
+.closeBook:hover {
+  background: rgba(43, 38, 32, 0.06);
+}
+
+.closeBook:focus-visible {
+  outline: 2px solid #7a5a2e;
+  outline-offset: 3px;
 }
 
 /* Controls */
 .close {
   position: absolute;
-  top: 10px;
-  right: 14px;
+  top: max(10px, env(safe-area-inset-top));
+  right: max(14px, env(safe-area-inset-right));
   z-index: 3;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border: 0;
   border-radius: 50%;
   background: rgba(43, 38, 32, 0.08);
@@ -198,10 +239,24 @@
   font-size: 24px;
   line-height: 1;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .close:hover {
   background: rgba(43, 38, 32, 0.16);
+}
+
+.close:focus-visible,
+.turn:focus-visible,
+.photoButton:focus-visible {
+  outline: 2px solid #7a5a2e;
+  outline-offset: 3px;
+}
+
+.lightbox .close:focus-visible,
+.turn.onDark:focus-visible {
+  outline-color: #ffd996;
 }
 
 .lightbox .close {
@@ -220,6 +275,8 @@
   color: #8a7c68;
   font-size: 34px;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: background 0.2s ease, color 0.2s ease;
 }
 
@@ -255,14 +312,14 @@
 
 .pageLabel {
   position: absolute;
-  bottom: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom));
   left: 0;
   right: 0;
   text-align: center;
   font-family: Georgia, serif;
   font-style: italic;
-  font-size: 12.5px;
-  color: #a2947f;
+  font-size: 13.5px;
+  color: #6d6257;
   margin: 0;
   pointer-events: none;
 }
@@ -283,6 +340,7 @@
 .lightboxPhoto {
   max-width: 94vw;
   max-height: 88vh;
+  max-height: 88dvh;
   object-fit: contain;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
   cursor: default;
@@ -290,7 +348,7 @@
 
 .lightboxCaption {
   position: absolute;
-  bottom: 22px;
+  bottom: max(22px, env(safe-area-inset-bottom));
   left: 0;
   right: 0;
   text-align: center;
@@ -302,8 +360,14 @@
   pointer-events: none;
 }
 
-/* Narrow screens: single page, tighter chrome. */
-@media (max-width: 700px) {
+/* Compact layouts: narrow phones AND short landscape phones get the
+   single-page view. Mirrors COMPACT_QUERY in designTokens.ts. */
+@media (max-width: 700px), (max-height: 520px) {
+  .scrim {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
   .book {
     width: 96vw;
     height: 92vh;
@@ -319,11 +383,30 @@
   }
 
   .photo {
-    max-height: calc(92dvh - 170px);
+    max-height: calc(100cqh - 170px);
   }
 
   .hint {
     display: none;
+  }
+
+  .hintMobile {
+    display: block;
+  }
+}
+
+/* Very short screens: give the photo back the room the caption doesn't need. */
+@media (max-height: 520px) {
+  .page {
+    padding: 10px 14px 34px;
+  }
+
+  .photo {
+    max-height: calc(100cqh - 104px);
+  }
+
+  .caption {
+    margin-top: 8px;
   }
 }
 

@@ -5,6 +5,7 @@
   color: #161616;
   font-family: Georgia, 'Times New Roman', serif;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }
@@ -34,7 +35,7 @@
 .scene {
   position: relative; flex: 1;
   max-width: 1280px; width: 100%; margin: 0 auto;
-  min-height: 92vh; overflow: hidden;
+  min-height: 92vh; min-height: 92dvh; overflow: hidden;
 }
 .scene::after {
   content: ""; position: absolute; inset: 0; z-index: 40;
@@ -105,6 +106,8 @@
   flex: 0 0 auto;
   text-decoration: none;
   transition: transform 0.3s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .book::before {
   content: ""; position: absolute; left: 50%; transform: translateX(-50%);
@@ -144,7 +147,7 @@
 
 .cover {
   position: absolute; bottom: 0; left: 50%;
-  width: 96px; height: 126px;
+  width: clamp(72px, 26vw, 96px); height: clamp(95px, 34vw, 126px);
   transform: translateX(-50%) translateY(6px) scale(0.8);
   opacity: 0;
   transition: opacity 0.18s ease-out, transform 0.18s ease-out;
@@ -181,7 +184,7 @@
   position: relative; z-index: 1;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 700px) {
   .frameA { width: 60px; height: 114px; left: 30%; top: 26%; border-width: 4px; }
   .frameB { width: 72px; height: 150px; left: 56%; top: 23%; border-width: 4px; }
   .lamp { width: 120px; right: 5%; }
@@ -189,6 +192,33 @@
   .shelfZone { left: 4%; right: 26%; }
   .shelfRow { padding-left: 6%; }
 }
+/* Touch: the shelf is the entire nav, so spine targets get room to breathe.
+   Wider gap + expanded hit area = ~44px effective targets, zero overlap. */
+@media (hover: none) {
+  .shelfRow { gap: 24px; }
+  .book::after { inset: -12px; }
+}
+/* An open cover pulses gently: an explicit "tap again" affordance for the
+   second tap of the two-tap model. */
+.book.open .cover {
+  animation: coverNudge 1.6s ease-in-out infinite;
+}
+@keyframes coverNudge {
+  0%, 100% { margin-bottom: 0; }
+  50% { margin-bottom: 5px; }
+}
+/* Short landscape screens (phones held sideways): compact the scene so
+   the lamp keeps its shade and the shelf stays clear of the frames. */
+@media (max-height: 480px) {
+  .plaqueHeader { padding: 10px 20px 0; }
+  .lamp { width: 100px; right: 4%; }
+  .lampGlow { right: calc(4% - 100px); bottom: calc(60% - 150px); width: 300px; height: 300px; }
+  .frameA { width: 54px; height: 102px; left: 36%; top: 20%; }
+  .frameB { width: 62px; height: 128px; left: 55%; top: 16%; }
+  .shelfZone { left: 5%; right: 20%; bottom: 30%; }
+}
 @media (prefers-reduced-motion: reduce) {
   .book, .spine, .cover { transition: none; }
+  .book.revealed .cover, .book.peek .cover { transition: none; }
+  .book.open .cover { animation: none; }
 }

@@ -7,6 +7,7 @@ import {
   PHOTOBOOK_TITLE,
   type PhotobookPhoto,
 } from './photobook/mexico';
+import { COMPACT_QUERY } from './designTokens';
 import styles from '../app/photobook.module.css';
 
 interface PhotobookOverlayProps {
@@ -15,9 +16,15 @@ interface PhotobookOverlayProps {
   onClose: () => void;
 }
 
-const LAST_PAGE = MEXICO_PHOTOS.length + 1; // 0 = cover, 1..20 photos, 21 = end
+const LAST_PAGE = MEXICO_PHOTOS.length + 1; // 0 = cover, 1..19 photos, 20 = end
 
-function PhotoPage({ photo, onZoom }: { photo: PhotobookPhoto; onZoom: () => void }) {
+function PhotoPage({
+  photo,
+  onZoom,
+}: {
+  photo: PhotobookPhoto;
+  onZoom: (e: React.MouseEvent<HTMLButtonElement>) => void;
+}) {
   return (
     <figure className={styles.page}>
       <button
@@ -26,7 +33,14 @@ function PhotoPage({ photo, onZoom }: { photo: PhotobookPhoto; onZoom: () => voi
         onClick={onZoom}
         aria-label={`View ${photo.alt} full screen`}
       >
-        <img src={photo.src} alt={photo.alt} className={styles.photo} loading="lazy" />
+        <img
+          src={photo.src}
+          alt={photo.alt}
+          className={styles.photo}
+          width={photo.width}
+          height={photo.height}
+          loading="eager"
+        />
       </button>
       <figcaption className={styles.caption}>{photo.caption}</figcaption>
     </figure>
@@ -36,24 +50,32 @@ function PhotoPage({ photo, onZoom }: { photo: PhotobookPhoto; onZoom: () => voi
 /**
  * The Photos book, opened: a full-screen photobook overlay.
  *
- * Desktop shows two-page spreads; narrow screens show one page at a time.
- * A photo can be opened into a full-screen lightbox. The overlay grows out
- * of the book's position on the shelf and shrinks back on close.
+ * Desktop shows two-page spreads; narrow/short screens show one page at a
+ * time. A photo can be opened into a full-screen lightbox. The overlay grows
+ * out of the book's position on the shelf and shrinks back on close.
+ *
+ * Focus contract: focus moves into the dialog on open, Tab cycles inside it,
+ * and focus returns to the Photos book on close.
  */
 export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayProps) {
   const [page, setPage] = useState(0);
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [closing, setClosing] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isCompact, setIsCompact] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
-  const touchX = useRef<number | null>(null);
+  const bookRef = useRef<HTMLDivElement>(null);
+  const lightboxRef = useRef<HTMLDivElement>(null);
+  const lightboxCloseRef = useRef<HTMLButtonElement>(null);
+  const lightboxOpener = useRef<HTMLElement | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const swiped = useRef(false);
 
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 700px)');
+    const mq = window.matchMedia(COMPACT_QUERY);
     const rm = window.matchMedia('(prefers-reduced-motion: reduce)');
     const sync = () => {
-      setIsMobile(mq.matches);
+      setIsCompact(mq.matches);
       setReducedMotion(rm.matches);
     };
     sync();
@@ -65,7 +87,7 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
     };
   }, []);
 
-  const step = isMobile ? 1 : 2;
+  const step = isCompact ? 1 : 2;
 
   const goTo = useCallback(
     (next: number) => setPage(Math.max(0, Math.min(LAST_PAGE, next))),
@@ -93,35 +115,106 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
     };
   }, []);
 
-  // Keyboard: arrows turn pages, Escape backs out.
+  // Lightbox focus: move in on open, return to the photo button on close.
+  useEffect(() => {
+    if (lightbox !== null) {
+      lightboxCloseRef.current?.focus();
+    } else if (lightboxOpener.current) {
+      lightboxOpener.current.focus();
+      lightboxOpener.current = null;
+    }
+  }, [lightbox]);
+
+  const openLightbox = useCallback((index: number, opener: HTMLElement) => {
+    lightboxOpener.current = opener;
+    setLightbox(index);
+  }, []);
+
+  // Prefetch neighbors so page turns don't stall on slow networks.
+  useEffect(() => {
+    const warm: number[] = [];
+    for (let p = page - 1; p <= page + 2; p++) {
+      if (p >= 1 && p <= MEXICO_PHOTOS.length) warm.push(p - 1);
+    }
+    warm.forEach((i) => {
+      const img = new Image();
+      img.src = MEXICO_PHOTOS[i].src;
+    });
+  }, [page]);
+
+  // Keyboard: arrows turn pages, Tab is trapped, Escape backs out.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         if (lightbox !== null) setLightbox(null);
         else requestClose();
-      } else if (e.key === 'ArrowRight') {
+        return;
+      }
+      if (e.key === 'ArrowRight') {
         if (lightbox !== null) setLightbox(Math.min(MEXICO_PHOTOS.length - 1, lightbox + 1));
         else next();
-      } else if (e.key === 'ArrowLeft') {
+        return;
+      }
+      if (e.key === 'ArrowLeft') {
         if (lightbox !== null) setLightbox(Math.max(0, lightbox - 1));
         else prev();
+        return;
+      }
+      if (e.key === 'Tab') {
+        // Trap focus in the topmost layer (lightbox, else the book).
+        const scope = lightbox !== null ? lightboxRef.current : bookRef.current;
+        if (!scope) return;
+        const focusables = Array.from(
+          scope.querySelectorAll<HTMLElement>('button:not([disabled])'),
+        ).filter((el) => el.getClientRects().length > 0);
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [lightbox, next, prev, requestClose]);
 
-  // Swipe to turn pages.
+  // Swipe: track the gesture's full lifecycle so a swipe never also fires
+  // the synthetic click (which would open the lightbox or double-turn).
   const onTouchStart = (e: React.TouchEvent) => {
-    touchX.current = e.touches[0].clientX;
+    touchStartX.current = e.touches[0].clientX;
+    swiped.current = false;
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    if (Math.abs(e.touches[0].clientX - touchStartX.current) > 10) swiped.current = true;
   };
   const onTouchEnd = (e: React.TouchEvent) => {
-    if (touchX.current === null) return;
-    const dx = e.changedTouches[0].clientX - touchX.current;
-    touchX.current = null;
-    if (Math.abs(dx) < 48 || lightbox !== null) return;
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(dx) < 48) return;
+    if (lightbox !== null) {
+      setLightbox(Math.max(0, Math.min(MEXICO_PHOTOS.length - 1, lightbox + (dx < 0 ? 1 : -1))));
+      return;
+    }
     if (dx < 0) next();
     else prev();
+  };
+  const onTouchCancel = () => {
+    touchStartX.current = null;
+    swiped.current = false;
+  };
+  const onClickCapture = (e: React.MouseEvent) => {
+    if (swiped.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      swiped.current = false;
+    }
   };
 
   const spreadLabel =
@@ -129,7 +222,7 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
       ? 'Cover'
       : page === LAST_PAGE
         ? 'End'
-        : isMobile
+        : isCompact
           ? `Photo ${page} of ${MEXICO_PHOTOS.length}`
           : `Pages ${page}${page + 1 <= MEXICO_PHOTOS.length ? `–${page + 1}` : ''}`;
 
@@ -141,6 +234,7 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
           <h2 className={styles.bookTitle}>{PHOTOBOOK_TITLE}</h2>
           <p className={styles.bookDates}>{PHOTOBOOK_DATES}</p>
           <p className={styles.hint}>Tap the edge of a page to turn it</p>
+          <p className={styles.hintMobile}>Swipe or tap the edges to turn the page</p>
         </div>
       );
     }
@@ -151,15 +245,18 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
           <p className={styles.bookDates}>
             {MEXICO_PHOTOS.length} photographs · {PHOTOBOOK_DATES}
           </p>
+          <button type="button" className={styles.closeBook} onClick={requestClose}>
+            Close the book
+          </button>
         </div>
       );
     }
     const left = MEXICO_PHOTOS[page - 1];
-    const right = !isMobile && page < MEXICO_PHOTOS.length ? MEXICO_PHOTOS[page] : null;
+    const right = !isCompact && page < MEXICO_PHOTOS.length ? MEXICO_PHOTOS[page] : null;
     return (
       <>
-        <PhotoPage photo={left} onZoom={() => setLightbox(page - 1)} />
-        {right && <PhotoPage photo={right} onZoom={() => setLightbox(page)} />}
+        <PhotoPage photo={left} onZoom={(e) => openLightbox(page - 1, e.currentTarget)} />
+        {right && <PhotoPage photo={right} onZoom={(e) => openLightbox(page, e.currentTarget)} />}
       </>
     );
   };
@@ -178,11 +275,20 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
       aria-label={`${PHOTOBOOK_TITLE} photobook`}
       tabIndex={-1}
       onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
+      onTouchCancel={onTouchCancel}
+      onClickCapture={onClickCapture}
     >
       <div className={styles.scrim} onClick={requestClose} aria-hidden="true" />
 
-      <div className={styles.book} key={page} role="document" aria-label={spreadLabel}>
+      <div
+        ref={bookRef}
+        className={styles.book}
+        key={page}
+        aria-label={spreadLabel}
+        aria-hidden={lightbox !== null}
+      >
         <button type="button" className={styles.close} onClick={requestClose} aria-label="Close photobook">
           ×
         </button>
@@ -215,25 +321,22 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
       </div>
 
       {lightbox !== null && (
-        <div
-          className={styles.lightbox}
-          role="dialog"
-          aria-modal="true"
-          aria-label={`${MEXICO_PHOTOS[lightbox].alt}, full screen`}
-          onClick={() => setLightbox(null)}
-        >
+        <div ref={lightboxRef} className={styles.lightbox} onClick={() => setLightbox(null)}>
           <img
             src={MEXICO_PHOTOS[lightbox].src}
             alt={MEXICO_PHOTOS[lightbox].alt}
             className={styles.lightboxPhoto}
+            width={MEXICO_PHOTOS[lightbox].width}
+            height={MEXICO_PHOTOS[lightbox].height}
             onClick={(e) => e.stopPropagation()}
           />
           <p className={styles.lightboxCaption}>{MEXICO_PHOTOS[lightbox].caption}</p>
           <button
+            ref={lightboxCloseRef}
             type="button"
             className={styles.close}
             onClick={() => setLightbox(null)}
-            aria-label="Back to the book"
+            aria-label={`Back to the book, ${MEXICO_PHOTOS[lightbox].alt}`}
           >
             ×
           </button>
