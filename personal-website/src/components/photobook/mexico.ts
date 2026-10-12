@@ -4,7 +4,7 @@ export interface PhotobookPhoto {
   alt: string;
 }
 
-export const PHOTOBOOK_TITLE = 'Mexico City';
+export const PHOTOBOOK_TITLE = 'Mexico';
 export const PHOTOBOOK_DATES = 'September 2026';
 
 /**
@@ -12,9 +12,9 @@ export const PHOTOBOOK_DATES = 'September 2026';
  * pools, Mexico City, then the Teotihuacán balloon flight.
  */
 export const MEXICO_PHOTOS: PhotobookPhoto[] = [
-  { src: '/photos/mexico/01.jpg', caption: 'Cascada La Gloria, Hidalgo', alt: 'Waterfall cascading down a mossy cliff, framed by jungle foliage' },
-  { src: '/photos/mexico/02.jpg', caption: 'La Gloria', alt: 'Orange flower in sharp focus with a blurred waterfall behind it' },
-  { src: '/photos/mexico/03.jpg', caption: 'Tolantongo', alt: 'Wide waterfall spilling over dark moss-covered rock' },
+  { src: '/photos/mexico/01.jpg', caption: 'Grutas de Tolantongo, Hidalgo', alt: 'Waterfall cascading down a mossy cliff, framed by jungle foliage' },
+  { src: '/photos/mexico/02.jpg', caption: 'Grutas de Tolantongo', alt: 'Orange flower in sharp focus with a blurred waterfall behind it' },
+  { src: '/photos/mexico/03.jpg', caption: 'Grutas de Tolantongo', alt: 'Wide waterfall spilling over dark moss-covered rock' },
   { src: '/photos/mexico/04.jpg', caption: 'Tolantongo', alt: 'Close view of water streaming over bright green mossy rock' },
   { src: '/photos/mexico/05.jpg', caption: 'Grutas de Tolantongo', alt: 'Green mountain valley with a river winding below' },
   { src: '/photos/mexico/06.jpg', caption: 'Pozas de Tolantongo', alt: 'Turquoise thermal pools terraced into a mountainside with swimmers' },
