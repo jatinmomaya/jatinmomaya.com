@@ -3,15 +3,16 @@ import type { ComponentType } from 'react';
 
 export function PhotosCover() {
   return (
-    <svg viewBox="0 0 150 200" role="img" aria-label="Photos book cover">
+    <svg viewBox="0 0 150 200" role="img" aria-label="Mexico photobook cover">
       <rect width="150" height="200" fill="#33523f" />
       <rect width="11" height="200" fill="#273f31" />
-      <rect x="28" y="28" width="94" height="72" fill="#f3ead6" />
-      <circle cx="100" cy="47" r="7" fill="#d9a441" />
-      <path d="M28 100 L62 57 L88 83 L102 69 L122 87 L122 100 Z" fill="#7a8a99" />
-      <path d="M28 100 L56 68 L78 88 L94 76 L122 100 Z" fill="#5a6a79" opacity="0.8" />
-      <text x="75" y="152" textAnchor="middle" fontSize="13" letterSpacing="4" fill="#f3ead6" fontFamily="ui-monospace, monospace">PHOTOS</text>
-      <line x1="52" y1="168" x2="98" y2="168" stroke="#f3ead6" strokeWidth="1" opacity="0.5" />
+      <rect x="28" y="24" width="94" height="72" fill="#f3ead6" />
+      <circle cx="100" cy="43" r="7" fill="#d9a441" />
+      <path d="M28 96 L62 53 L88 79 L102 65 L122 83 L122 96 Z" fill="#7a8a99" />
+      <path d="M28 96 L56 64 L78 84 L94 72 L122 96 Z" fill="#5a6a79" opacity="0.8" />
+      <text x="75" y="140" textAnchor="middle" fontSize="17" letterSpacing="5" fill="#f3ead6" fontFamily="ui-monospace, monospace">MEXICO</text>
+      <text x="75" y="162" textAnchor="middle" fontSize="10" letterSpacing="4" fill="#f3ead6" fontFamily="ui-monospace, monospace" opacity="0.85">PHOTOBOOK</text>
+      <line x1="52" y1="176" x2="98" y2="176" stroke="#f3ead6" strokeWidth="1" opacity="0.5" />
     </svg>
   );
 }

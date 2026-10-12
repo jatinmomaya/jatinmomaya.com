@@ -27,6 +27,8 @@ export default function Bookshelf() {
   const [photobookOpen, setPhotobookOpen] = useState(false);
   const [photobookOrigin, setPhotobookOrigin] = useState<{ x: number; y: number } | null>(null);
   const [mounted, setMounted] = useState(false);
+  // Swipe-across accordion: the book under the finger reveals like a hover.
+  const [touchRevealId, setTouchRevealId] = useState<string | null>(null);
   // Forgive the imprecise second tap: don't treat the pointerdown that
   // follows an open as a click-away dismiss.
   const openedAt = useRef(0);
@@ -106,11 +108,29 @@ export default function Bookshelf() {
     };
   }, [closeAll]);
 
+  // Swipe across the shelf: whichever book is under the finger lights up,
+  // accordion-style. Pure browse gesture — lifting the finger reveals
+  // nothing further; the two-tap model still handles activation.
+  const handleShelfTouchMove = (e: React.TouchEvent<HTMLElement>) => {
+    const t = e.touches[0];
+    if (!t) return;
+    const under = document.elementFromPoint(t.clientX, t.clientY)?.closest?.('[data-book]');
+    setTouchRevealId(under ? under.getAttribute('data-book') : null);
+  };
+  const handleShelfTouchEnd = () => setTouchRevealId(null);
+
   return (
     <div className={styles.shelfZone}>
-      <nav aria-label="Site sections" data-shelf-nav tabIndex={-1}>
+      <nav
+        aria-label="Site sections"
+        data-shelf-nav
+        tabIndex={-1}
+        onTouchMove={handleShelfTouchMove}
+        onTouchEnd={handleShelfTouchEnd}
+        onTouchCancel={handleShelfTouchEnd}
+      >
         <p className={styles.visuallyHidden}>
-          Three books on a shelf. Each book is a section of the site: hover or tap to see its cover, then open it to visit.
+          Three books on a shelf. Each book is a section of the site: hover, tap, or swipe across to see its cover, then open it to visit.
         </p>
         <ul className={styles.shelfRow}>
           <li aria-hidden="true">
@@ -127,6 +147,7 @@ export default function Bookshelf() {
                   open={openId === book.id}
                   onOpen={() => handleOpen(book.id)}
                   onSelect={book.id === 'photos' ? openPhotobook : undefined}
+                  forceReveal={touchRevealId === book.id}
                 />
               </li>
             );

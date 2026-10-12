@@ -25,6 +25,11 @@ interface BookProps {
    * measure the book's position for the grow animation.
    */
   onSelect?: (e: MouseEvent<HTMLAnchorElement>) => void;
+  /**
+   * Externally forced reveal (the swipe-across accordion): the book under
+   * the finger lights up like a hover, without activating.
+   */
+  forceReveal?: boolean;
 }
 
 /** Hover-intent delay: a cursor sweep must linger this long to count. */
@@ -44,7 +49,7 @@ const HOVER_INTENT_MS = 80;
  * - Keyboard: focusing the link reveals its cover at once; Enter activates;
  *   Escape closes and moves focus to the shelf nav (handled by Bookshelf).
  */
-export default function Book({ book, cover, peek, open, onOpen, onSelect }: BookProps) {
+export default function Book({ book, cover, peek, open, onOpen, onSelect, forceReveal }: BookProps) {
   const [hoverRevealed, setHoverRevealed] = useState(false);
   const [focusRevealed, setFocusRevealed] = useState(false);
   const intentTimer = useRef<number | null>(null);
@@ -57,7 +62,7 @@ export default function Book({ book, cover, peek, open, onOpen, onSelect }: Book
     [],
   );
 
-  const revealed = hoverRevealed || focusRevealed || open || peek;
+  const revealed = hoverRevealed || focusRevealed || open || peek || forceReveal;
   // aria-expanded reports the user's own reveal, not the intro peek.
   const expanded = hoverRevealed || focusRevealed || open;
 

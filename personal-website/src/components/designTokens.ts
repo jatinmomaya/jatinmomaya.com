@@ -19,11 +19,13 @@ export interface NavBook {
 export const NAV_BOOKS: NavBook[] = [
   {
     id: 'photos',
-    title: 'Photos',
+    title: 'Mexico Photobook',
     spine: '#33523f',
     ink: '#f3ead6',
-    width: 20,
-    height: 84,
+    // Photobooks are bigger than reading books — this one stands taller
+    // on the shelf, with room on the spine for the full title.
+    width: 24,
+    height: 118,
     href: '/photography',
   },
   {
