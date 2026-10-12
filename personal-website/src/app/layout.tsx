@@ -1,11 +1,11 @@
-import Header from '../components/Header';
+import ConditionalHeader from '../components/ConditionalHeader';
 import "./globals.css";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <Header />
+        <ConditionalHeader />
         {children}
       </body>
     </html>
