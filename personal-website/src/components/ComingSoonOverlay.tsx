@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styles from '../app/comingsoon.module.css';
 
-export type ComingSoonKind = 'about' | 'field-notes';
+export type ComingSoonKind = 'field-notes';
 
 interface ComingSoonOverlayProps {
   kind: ComingSoonKind;
@@ -17,11 +17,6 @@ const COPY: Record<ComingSoonKind, { kicker: string; title: string; body: string
     kicker: 'Notebook',
     title: 'Field Notes',
     body: 'The first entries are still being written.',
-  },
-  about: {
-    kicker: 'Author',
-    title: 'About',
-    body: 'This page is still being written.',
   },
 };
 

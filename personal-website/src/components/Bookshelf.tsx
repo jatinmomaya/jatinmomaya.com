@@ -14,6 +14,8 @@ import styles from '../app/room.module.css';
 const PhotobookOverlay = dynamic(() => import('./PhotobookOverlay'), { ssr: false });
 // Same for the coming-soon placeholder pages.
 const ComingSoonOverlay = dynamic(() => import('./ComingSoonOverlay'), { ssr: false });
+// The About page is real content — also kept out of first paint.
+const AboutOverlay = dynamic(() => import('./AboutOverlay'), { ssr: false });
 
 /**
  * The oak shelf: bookend plus the navigation books, left-anchored with
@@ -31,6 +33,8 @@ export default function Bookshelf() {
   const [photobookOrigin, setPhotobookOrigin] = useState<{ x: number; y: number } | null>(null);
   const [soonKind, setSoonKind] = useState<ComingSoonKind | null>(null);
   const [soonOrigin, setSoonOrigin] = useState<{ x: number; y: number } | null>(null);
+  const [aboutOpen, setAboutOpen] = useState(false);
+  const [aboutOrigin, setAboutOrigin] = useState<{ x: number; y: number } | null>(null);
   const [mounted, setMounted] = useState(false);
   // Swipe-across accordion: the book under the finger reveals like a hover.
   const [touchRevealId, setTouchRevealId] = useState<string | null>(null);
@@ -84,6 +88,24 @@ export default function Bookshelf() {
     setPhotobookOrigin({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
     setOpenId(null);
     setPhotobookOpen(true);
+  }, []);
+
+  // Focus contract: when the About page closes, focus returns to the
+  // About book that opened it.
+  const closeAbout = useCallback(() => {
+    setAboutOpen(false);
+    window.setTimeout(() => {
+      document.querySelector<HTMLElement>('[data-book="about"]')?.focus();
+    }, 0);
+  }, []);
+
+  // The About book opens the real About page in place; it grows out of
+  // the book's position on the shelf.
+  const openAbout = useCallback((e: MouseEvent<HTMLAnchorElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setAboutOrigin({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    setOpenId(null);
+    setAboutOpen(true);
   }, []);
 
   // Focus contract: when the coming-soon page closes, focus returns to
@@ -176,9 +198,11 @@ export default function Bookshelf() {
                   onSelect={
                     book.id === 'photos'
                       ? openPhotobook
-                      : book.id === 'about' || book.id === 'field-notes'
-                        ? openSoon(book.id as ComingSoonKind)
-                        : undefined
+                      : book.id === 'about'
+                        ? openAbout
+                        : book.id === 'field-notes'
+                          ? openSoon('field-notes')
+                          : undefined
                   }
                   forceReveal={touchRevealId === book.id}
                 />
@@ -198,6 +222,12 @@ export default function Bookshelf() {
         soonKind &&
         createPortal(
           <ComingSoonOverlay kind={soonKind} origin={soonOrigin} onClose={closeSoon} />,
+          document.body,
+        )}
+      {mounted &&
+        aboutOpen &&
+        createPortal(
+          <AboutOverlay origin={aboutOrigin} onClose={closeAbout} />,
           document.body,
         )}
     </div>
