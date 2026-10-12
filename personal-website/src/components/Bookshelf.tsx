@@ -189,8 +189,7 @@ export default function Bookshelf() {
   // ~96px wide once turned).
   const FOCUS_RANGE_PX = 72;
   const FOCUS_STICK_PX = 10; // hysteresis: don't hand off focus on a tie
-  const NEIGHBOR_SHIFT_PX = 40;
-  const RIPPLE_BLOOM = 0.32;
+  const NEIGHBOR_SHIFT_PX = 44;
 
   // Untransformed centers: the <li> wrappers never move, so the bloom
   // can't chase its own tail.
@@ -234,12 +233,10 @@ export default function Bookshelf() {
   };
 
   const focusIndex = NAV_BOOKS.findIndex((b) => b.id === focusId);
-  const bloomFor = (id: string) => {
-    if (focusId === null) return 0;
-    const i = NAV_BOOKS.findIndex((b) => b.id === id);
-    if (i === focusIndex) return 1;
-    return Math.abs(i - focusIndex) === 1 ? RIPPLE_BLOOM : 0;
-  };
+  // Only the focused book blooms; neighbors just part to the sides with a
+  // slight tilt. (A partial bloom on neighbors left their wide covers
+  // ghosting over each other.)
+  const bloomFor = (id: string) => (focusId !== null && id === focusId ? 1 : 0);
   const shiftFor = (id: string) => {
     if (focusId === null || focusId === id) return 0;
     const i = NAV_BOOKS.findIndex((b) => b.id === id);
