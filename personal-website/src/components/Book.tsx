@@ -48,11 +48,14 @@ export default function Book({ book, cover, peek, open, onOpen, onSelect, bloom:
 
   useLayoutEffect(() => {
     if (!nodeRef.current) return;
+    // The bloom presents the full front cover: mostly face-on with a hint
+    // of 3D turn, lifted and enlarged like the book was pulled off the
+    // shelf toward the viewer.
     springBook(nodeRef.current, {
       translateX: shift,
-      translateY: -8 * bloom,
-      rotateY: -62 * bloom + (shift === 0 ? 0 : -Math.sign(shift) * 4),
-      scale: 1 + 0.05 * bloom,
+      translateY: -14 * bloom,
+      rotateY: -32 * bloom + (shift === 0 ? 0 : -Math.sign(shift) * 4),
+      scale: 1 + 0.18 * bloom,
     });
   }, [bloom, shift]);
 
