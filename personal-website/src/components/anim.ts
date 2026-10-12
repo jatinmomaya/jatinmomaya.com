@@ -5,7 +5,7 @@
  * contract lives in one place: if the user prefers reduced motion,
  * timelines never play and elements jump to their end state.
  */
-import { animate, createTimeline } from 'animejs';
+import { animate, createTimeline, spring } from 'animejs';
 
 export function prefersReducedMotion(): boolean {
   return (
@@ -68,43 +68,19 @@ export function playCloseAnimation(el: HTMLElement): Promise<void> {
   });
 }
 
-let flicker: ReturnType<typeof createTimeline> | null = null;
-let flickerRestoreTimer: number | null = null;
 
-/**
- * Lamp switching on: the glow stutters to life like a real bulb, then
- * settles. Suspends the CSS opacity transition while the flicker runs so
- * the stutter isn't smoothed out. Call stopLampFlicker when switching off
- * mid-flicker.
- */
-export function playLampFlicker(glowEl: HTMLElement) {
-  stopLampFlicker(glowEl);
-  if (prefersReducedMotion()) return;
-  glowEl.style.transition = 'none';
-  flicker = createTimeline()
-    .add(glowEl, { opacity: [0, 1], duration: 80, ease: 'linear' })
-    .add(glowEl, { opacity: 0.15, duration: 60, ease: 'linear' })
-    .add(glowEl, { opacity: [0.15, 0.9], duration: 70, ease: 'linear' })
-    .add(glowEl, { opacity: 0.4, duration: 90, ease: 'linear' })
-    .add(glowEl, { opacity: [0.4, 1], duration: 300, ease: 'outQuad' });
-  // Total ~600ms; then hand opacity back to CSS.
-  flickerRestoreTimer = window.setTimeout(() => {
-    glowEl.style.transition = '';
-    flickerRestoreTimer = null;
-  }, 650);
+export function springBook(el: HTMLElement, values: { translateX: number; translateY: number; rotateY: number; scale: number }) {
+  if (prefersReducedMotion()) {
+    el.style.transform = `translate(${values.translateX}px, ${values.translateY}px) rotateY(${values.rotateY}deg) scale(${values.scale})`;
+    return;
+  }
+  animate(el, { ...values, ease: spring({ stiffness: 150, damping: 16, mass: 0.7 }) });
 }
 
-export function stopLampFlicker(glowEl: HTMLElement) {
-  if (flicker) {
-    const f = flicker as unknown as { revert?: () => void; cancel?: () => void };
-    if (typeof f.revert === 'function') f.revert();
-    else if (typeof f.cancel === 'function') f.cancel();
-    flicker = null;
+export function springCord(el: SVGElement) {
+  if (prefersReducedMotion()) {
+    el.style.transform = 'translateY(0px)';
+    return;
   }
-  if (flickerRestoreTimer !== null) {
-    window.clearTimeout(flickerRestoreTimer);
-    flickerRestoreTimer = null;
-  }
-  glowEl.style.transition = '';
-  glowEl.style.opacity = '';
+  animate(el, { translateY: [0, 12, 0], ease: spring({ stiffness: 220, damping: 12, mass: 0.6 }) });
 }

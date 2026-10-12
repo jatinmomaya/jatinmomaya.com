@@ -39,6 +39,7 @@ export default function Bookshelf() {
   const [mounted, setMounted] = useState(false);
   // Swipe-across accordion: the book under the finger reveals like a hover.
   const [touchRevealId, setTouchRevealId] = useState<string | null>(null);
+  const [pointerX, setPointerX] = useState<number | null>(null);
   // Forgive the imprecise second tap: don't treat the pointerdown that
   // follows an open as a click-away dismiss.
   const openedAt = useRef(0);
@@ -175,9 +176,53 @@ export default function Bookshelf() {
     const t = e.touches[0];
     if (!t) return;
     const under = document.elementFromPoint(t.clientX, t.clientY)?.closest?.('[data-book]');
+    setPointerX(t.clientX);
     setTouchRevealId(under ? under.getAttribute('data-book') : null);
   };
-  const handleShelfTouchEnd = () => setTouchRevealId(null);
+  const handleShelfPointerMove = (e: React.PointerEvent<HTMLElement>) => {
+    if (e.pointerType !== 'touch') setPointerX(e.clientX);
+  };
+  const clearPointer = () => { setPointerX(null); setTouchRevealId(null); };
+
+  // Bloom geometry: the falloff is narrow so one book dominates while its
+  // immediate neighbors catch a gentle partial bloom (the ripple). The
+  // bloomed book is ~96px wide once turned, so neighbors shift well clear.
+  const BLOOM_FALLOFF_PX = 48;
+  const NEIGHBOR_SHIFT_PX = 40;
+
+  const bookCenterX = (id: string): number | null => {
+    const el = document.querySelector<HTMLElement>(`[data-book="${id}"]`);
+    if (!el) return null;
+    const rect = el.getBoundingClientRect();
+    return rect.left + rect.width / 2;
+  };
+  const opennessFor = (id: string) => {
+    if (pointerX === null) return touchRevealId === id ? 1 : 0;
+    const cx = bookCenterX(id);
+    if (cx === null) return 0;
+    return Math.max(0, 1 - Math.abs(pointerX - cx) / BLOOM_FALLOFF_PX);
+  };
+  // The book nearest the pointer is the focused one; its bloom scales how
+  // far the neighbors part.
+  const focusedBook = (() => {
+    if (pointerX === null) return null;
+    let best: { id: string; dist: number } | null = null;
+    for (const book of NAV_BOOKS) {
+      const cx = bookCenterX(book.id);
+      if (cx === null) continue;
+      const dist = Math.abs(pointerX - cx);
+      if (!best || dist < best.dist) best = { id: book.id, dist };
+    }
+    if (!best) return null;
+    return { id: best.id, bloom: Math.max(0, 1 - best.dist / BLOOM_FALLOFF_PX) };
+  })();
+  const shiftFor = (id: string) => {
+    if (!focusedBook || focusedBook.id === id) return 0;
+    const cx = bookCenterX(id);
+    const fx = bookCenterX(focusedBook.id);
+    if (cx === null || fx === null) return 0;
+    return (cx < fx ? -1 : 1) * NEIGHBOR_SHIFT_PX * focusedBook.bloom;
+  };
 
   return (
     <div className={styles.shelfZone}>
@@ -185,9 +230,11 @@ export default function Bookshelf() {
         aria-label="Site sections"
         data-shelf-nav
         tabIndex={-1}
+        onPointerMove={handleShelfPointerMove}
+        onPointerLeave={clearPointer}
         onTouchMove={handleShelfTouchMove}
-        onTouchEnd={handleShelfTouchEnd}
-        onTouchCancel={handleShelfTouchEnd}
+        onTouchEnd={clearPointer}
+        onTouchCancel={clearPointer}
       >
         <p className={styles.visuallyHidden}>
           Three books on a shelf. Each book is a section of the site: hover, tap, or swipe across to see its cover, then open it to visit.
@@ -215,13 +262,21 @@ export default function Bookshelf() {
                           ? openSoon('field-notes')
                           : undefined
                   }
-                  forceReveal={touchRevealId === book.id}
+                  openness={opennessFor(book.id)}
+                  shift={shiftFor(book.id)}
                 />
               </li>
             );
           })}
         </ul>
       </nav>
+      <div className={styles.shelfDecor} aria-hidden="true">
+        <span className={styles.decorBook} style={{ height: 77, background: '#35443a' }} />
+        <span className={styles.decorBook} style={{ height: 103, background: '#50312f' }} />
+        <span className={`${styles.decorBook} ${styles.decorLean}`} style={{ height: 91, background: '#343b50' }} />
+        <span className={styles.decorBook} style={{ height: 69, background: '#51452e' }} />
+        <span className={styles.vase} />
+      </div>
       <div className={styles.plank} aria-hidden="true" />
       {mounted &&
         chapter &&

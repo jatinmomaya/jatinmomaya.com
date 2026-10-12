@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { playLampFlicker, stopLampFlicker } from './anim';
+import { springCord } from './anim';
 import styles from '../app/room.module.css';
 
 interface FloorLampProps {
@@ -10,10 +10,10 @@ interface FloorLampProps {
 /**
  * Tall floor lamp with a fabric drum shade, plus its warm pool of light.
  * The lamp is a switch: clicking or tapping it turns the light on and off.
- * Switching on plays a fluorescent-style flicker via anime.js.
+ * Toggling the lamp gives its pull cord a small springing dip.
  */
 export default function FloorLamp({ on, onToggle }: FloorLampProps) {
-  const glowRef = useRef<HTMLDivElement>(null);
+  const cordRef = useRef<SVGGElement>(null);
   const mounted = useRef(false);
 
   // Flicker on user toggle (not on first mount).
@@ -22,15 +22,12 @@ export default function FloorLamp({ on, onToggle }: FloorLampProps) {
       mounted.current = true;
       return;
     }
-    const glow = glowRef.current;
-    if (!glow) return;
-    if (on) playLampFlicker(glow);
-    else stopLampFlicker(glow);
-  }, [on ]);
+    if (cordRef.current) springCord(cordRef.current);
+  }, [on]);
 
   return (
     <>
-      <div ref={glowRef} className={on ? styles.lampGlow : `${styles.lampGlow} ${styles.lampGlowOff}`} aria-hidden="true" />
+      <div className={on ? styles.lampGlow : `${styles.lampGlow} ${styles.lampGlowOff}`} aria-hidden="true" />
       <button
         type="button"
         className={styles.lamp}
@@ -50,8 +47,10 @@ export default function FloorLamp({ on, onToggle }: FloorLampProps) {
           <path d="M28 24 L104 24 L102 36 L30 36 Z" fill={on ? '#8a6f4d' : '#6e5f4b'} />
           <ellipse cx="66" cy="94" rx="32" ry="6" fill={on ? '#c9ae7e' : '#9c8c72'} />
           <circle cx="66" cy="100" r="8" fill={on ? '#ffe2b0' : '#6b6257'} />
-          <line x1="88" y1="92" x2="88" y2="126" stroke="#2b2b2b" strokeWidth="2" />
-          <circle cx="88" cy="131" r="4" fill="#8a6f4d" />
+          <g ref={cordRef}>
+            <line x1="88" y1="92" x2="88" y2="126" stroke="#2b2b2b" strokeWidth="2" />
+            <circle cx="88" cy="131" r="4" fill="#8a6f4d" />
+          </g>
           <rect x="61" y="94" width="10" height="342" fill="#2b2b2b" />
           <ellipse cx="66" cy="466" rx="36" ry="11" fill="#1f1f1f" />
           <rect x="61" y="436" width="10" height="18" fill="#2b2b2b" />
