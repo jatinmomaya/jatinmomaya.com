@@ -20,7 +20,7 @@ export const NAV_BOOKS: NavBook[] = [
   {
     id: 'photos',
     title: 'Mexico Photobook',
-    spine: '#33523f',
+    spine: '#2e4a38',
     ink: '#f3ead6',
     // Photobooks are bigger than reading books — this one stands taller
     // on the shelf, with room on the spine for the full title.
@@ -31,8 +31,8 @@ export const NAV_BOOKS: NavBook[] = [
   {
     id: 'field-notes',
     title: 'Field notes',
-    spine: '#c9a86a',
-    ink: '#4a3b22',
+    spine: '#6f3128',
+    ink: '#f3ead6',
     width: 18,
     height: 100,
     href: '/blog',
@@ -40,7 +40,7 @@ export const NAV_BOOKS: NavBook[] = [
   {
     id: 'about',
     title: 'About',
-    spine: '#2e3d5c',
+    spine: '#26334f',
     ink: '#e8e4d8',
     width: 22,
     height: 92,

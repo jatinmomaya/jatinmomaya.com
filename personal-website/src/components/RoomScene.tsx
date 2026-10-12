@@ -15,8 +15,9 @@ import styles from '../app/room.module.css';
 export default function RoomScene() {
   const [lampOn, setLampOn] = useState(true);
   return (
-    <div className={styles.room}>
+    <div className={lampOn ? styles.room : `${styles.room} ${styles.lampOff}`}>
       <div className={styles.grain} aria-hidden="true" />
+      <div className={styles.moonwash} aria-hidden="true" />
       <BrassPlaque />
       <main className={styles.scene}>
         <div className={styles.plaster} aria-hidden="true" />

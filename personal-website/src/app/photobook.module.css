@@ -9,8 +9,7 @@
   justify-content: center;
   overscroll-behavior: none;
   touch-action: pan-y;
-  --ox: 50vw;
-  --oy: 50vh;
+  perspective: 1400px;
 }
 
 .scrim {
@@ -37,8 +36,8 @@
   box-shadow:
     0 40px 90px rgba(0, 0, 0, 0.55),
     inset 0 0 60px rgba(120, 90, 40, 0.06);
-  transform-origin: var(--ox) var(--oy);
-  animation: growIn 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+  /* Open/close animation is driven by anime.js (playOpenAnimation /
+     playCloseAnimation), not CSS, so the 3D tilt can originate at the book. */
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -58,26 +57,8 @@
   pointer-events: none;
 }
 
-@keyframes growIn {
-  from {
-    transform: scale(0.12);
-    opacity: 0;
-  }
-}
-
-.overlay.closing .book {
-  animation: shrinkOut 0.26s ease forwards;
-}
-
 .overlay.closing .scrim {
   animation: scrimOut 0.26s ease forwards;
-}
-
-@keyframes shrinkOut {
-  to {
-    transform: scale(0.12);
-    opacity: 0;
-  }
 }
 
 @keyframes scrimOut {
@@ -97,15 +78,6 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  animation: pageIn 0.3s ease;
-}
-
-@keyframes pageIn {
-  from { opacity: 0.25; }
-}
-
-.noMotion .spread {
-  animation: none;
 }
 
 .page {

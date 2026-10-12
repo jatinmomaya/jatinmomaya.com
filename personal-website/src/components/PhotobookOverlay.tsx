@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { PhotobookChapter, PhotobookPhoto } from './photobook/chapters';
 import { warmChapterPhotos } from './photobook/chapters';
+import { playCloseAnimation, playOpenAnimation, playPageTurn } from './anim';
 import { COMPACT_QUERY } from './designTokens';
 import styles from '../app/photobook.module.css';
 
@@ -63,6 +64,7 @@ export default function PhotobookOverlay({ chapter, origin, onClose }: Photobook
   const [reducedMotion, setReducedMotion] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const bookRef = useRef<HTMLDivElement>(null);
+  const spreadRef = useRef<HTMLDivElement>(null);
   const lightboxRef = useRef<HTMLDivElement>(null);
   const lightboxCloseRef = useRef<HTMLButtonElement>(null);
   const lightboxOpener = useRef<HTMLElement | null>(null);
@@ -100,8 +102,22 @@ export default function PhotobookOverlay({ chapter, origin, onClose }: Photobook
       return;
     }
     setClosing(true);
-    window.setTimeout(onClose, 260);
+    const book = bookRef.current;
+    if (book) playCloseAnimation(book).then(onClose);
+    else onClose();
   }, [onClose, reducedMotion]);
+
+  // 3D book-opening animation on mount (anime.js timeline).
+  useEffect(() => {
+    if (bookRef.current) playOpenAnimation(bookRef.current, origin);
+    // origin is fixed for the overlay's lifetime
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Page turn: the fresh spread tilts in.
+  useEffect(() => {
+    if (spreadRef.current) playPageTurn(spreadRef.current);
+  }, [page]);
 
   // Lock body scroll and focus the dialog while open.
   useEffect(() => {
@@ -256,15 +272,10 @@ export default function PhotobookOverlay({ chapter, origin, onClose }: Photobook
     );
   };
 
-  const originStyle = origin
-    ? ({ '--ox': `${origin.x}px`, '--oy': `${origin.y}px` } as React.CSSProperties)
-    : undefined;
-
   return (
     <div
       ref={dialogRef}
       className={`${styles.overlay} ${closing ? styles.closing : ''} ${reducedMotion ? styles.noMotion : ''}`}
-      style={originStyle}
       role="dialog"
       aria-modal="true"
       aria-label={`${chapter.title} photobook`}
@@ -296,7 +307,7 @@ export default function PhotobookOverlay({ chapter, origin, onClose }: Photobook
           ‹
         </button>
 
-        <div className={styles.spread} key={page} aria-label={spreadLabel}>{renderPages()}</div>
+        <div ref={spreadRef} className={styles.spread} key={page} aria-label={spreadLabel}>{renderPages()}</div>
 
         <button
           type="button"
