@@ -79,9 +79,16 @@
   width: 560px; height: 560px;
   background: radial-gradient(circle, rgba(255, 205, 130, 0.8), rgba(255, 205, 130, 0) 70%);
   pointer-events: none;
+  transition: opacity 0.45s ease;
 }
-.lamp { position: absolute; right: 8%; bottom: 0; width: 186px; z-index: 3; }
+.lampGlowOff { opacity: 0; }
+/* The lamp is a switch: clicking it toggles the light. */
+.lamp {
+  position: absolute; right: 8%; bottom: 0; width: 186px; z-index: 3;
+  background: none; border: none; padding: 0; cursor: pointer;
+}
 .lamp svg { display: block; width: 100%; height: auto; }
+.lamp:focus-visible { outline: 2px solid #2e3d5c; outline-offset: 4px; border-radius: 4px; }
 
 .shelfZone { position: absolute; left: 8%; right: 18%; bottom: 37%; z-index: 2; }
 .shelfRow {
@@ -224,4 +231,5 @@
   .book, .spine, .cover { transition: none; }
   .book.revealed .cover, .book.peek .cover { transition: none; }
   .book.open .cover { animation: none; }
+  .lampGlow { transition: none; }
 }

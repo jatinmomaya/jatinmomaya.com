@@ -7,10 +7,13 @@ import Book from './Book';
 import { BOOK_COVERS } from './BookCovers';
 import { INTRO, NAV_BOOKS } from './designTokens';
 import { warmPhotos } from './photobook/mexico';
+import type { ComingSoonKind } from './ComingSoonOverlay';
 import styles from '../app/room.module.css';
 
 // The photobook only exists after a tap — keep it out of first paint.
 const PhotobookOverlay = dynamic(() => import('./PhotobookOverlay'), { ssr: false });
+// Same for the coming-soon placeholder pages.
+const ComingSoonOverlay = dynamic(() => import('./ComingSoonOverlay'), { ssr: false });
 
 /**
  * The oak shelf: bookend plus the navigation books, left-anchored with
@@ -26,6 +29,8 @@ export default function Bookshelf() {
   const [peekId, setPeekId] = useState<string | null>(null);
   const [photobookOpen, setPhotobookOpen] = useState(false);
   const [photobookOrigin, setPhotobookOrigin] = useState<{ x: number; y: number } | null>(null);
+  const [soonKind, setSoonKind] = useState<ComingSoonKind | null>(null);
+  const [soonOrigin, setSoonOrigin] = useState<{ x: number; y: number } | null>(null);
   const [mounted, setMounted] = useState(false);
   // Swipe-across accordion: the book under the finger reveals like a hover.
   const [touchRevealId, setTouchRevealId] = useState<string | null>(null);
@@ -80,6 +85,28 @@ export default function Bookshelf() {
     setOpenId(null);
     setPhotobookOpen(true);
   }, []);
+
+  // Focus contract: when the coming-soon page closes, focus returns to
+  // the book that opened it.
+  const closeSoon = useCallback(() => {
+    const kind = soonKind;
+    setSoonKind(null);
+    window.setTimeout(() => {
+      if (kind) document.querySelector<HTMLElement>(`[data-book="${kind}"]`)?.focus();
+    }, 0);
+  }, [soonKind]);
+
+  // About and Field notes aren't written yet — a placeholder page grows
+  // out of the book's position on the shelf.
+  const openSoon = useCallback(
+    (kind: ComingSoonKind) => (e: MouseEvent<HTMLAnchorElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      setSoonOrigin({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+      setOpenId(null);
+      setSoonKind(kind);
+    },
+    [],
+  );
 
   // Escape closes; clicking anywhere outside a book closes.
   // Escape moves focus to the shelf nav so a keyboard-revealed cover
@@ -146,7 +173,13 @@ export default function Bookshelf() {
                   peek={peekId === book.id}
                   open={openId === book.id}
                   onOpen={() => handleOpen(book.id)}
-                  onSelect={book.id === 'photos' ? openPhotobook : undefined}
+                  onSelect={
+                    book.id === 'photos'
+                      ? openPhotobook
+                      : book.id === 'about' || book.id === 'field-notes'
+                        ? openSoon(book.id as ComingSoonKind)
+                        : undefined
+                  }
                   forceReveal={touchRevealId === book.id}
                 />
               </li>
@@ -159,6 +192,12 @@ export default function Bookshelf() {
         photobookOpen &&
         createPortal(
           <PhotobookOverlay origin={photobookOrigin} onClose={closePhotobook} />,
+          document.body,
+        )}
+      {mounted &&
+        soonKind &&
+        createPortal(
+          <ComingSoonOverlay kind={soonKind} origin={soonOrigin} onClose={closeSoon} />,
           document.body,
         )}
     </div>

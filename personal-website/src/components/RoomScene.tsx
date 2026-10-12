@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import Bookshelf from './Bookshelf';
 import BrassPlaque from './BrassPlaque';
 import FloorLamp from './FloorLamp';
@@ -10,6 +13,7 @@ import styles from '../app/room.module.css';
  * and the bookshelf whose spines are the site navigation.
  */
 export default function RoomScene() {
+  const [lampOn, setLampOn] = useState(true);
   return (
     <div className={styles.room}>
       <div className={styles.grain} aria-hidden="true" />
@@ -19,7 +23,7 @@ export default function RoomScene() {
         <PictureFrame variant="a" />
         <PictureFrame variant="b" />
         <div className={styles.floor} aria-hidden="true" />
-        <FloorLamp />
+        <FloorLamp on={lampOn} onToggle={() => setLampOn((v) => !v)} />
         <Bookshelf />
       </main>
     </div>
