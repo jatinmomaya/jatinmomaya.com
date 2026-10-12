@@ -18,6 +18,12 @@ interface BookProps {
   /** true while this book's cover is held open (touch two-tap) */
   open: boolean;
   onOpen: () => void;
+  /**
+   * Optional activation override (Photos book opens the photobook overlay
+   * instead of navigating). Receives the click event so the caller can
+   * measure the book's position for the grow animation.
+   */
+  onSelect?: (e: MouseEvent<HTMLAnchorElement>) => void;
 }
 
 /** Hover-intent delay: a cursor sweep must linger this long to count. */
@@ -36,7 +42,7 @@ const HOVER_INTENT_MS = 80;
  * - Keyboard: focusing the link reveals its cover at once; Enter follows
  *   it; Escape closes and drops focus (handled by Bookshelf).
  */
-export default function Book({ book, cover, peek, open, onOpen }: BookProps) {
+export default function Book({ book, cover, peek, open, onOpen, onSelect }: BookProps) {
   const [touchOnly, setTouchOnly] = useState(false);
   const [hoverRevealed, setHoverRevealed] = useState(false);
   const [focusRevealed, setFocusRevealed] = useState(false);
@@ -72,6 +78,11 @@ export default function Book({ book, cover, peek, open, onOpen }: BookProps) {
     if (touchOnly && !open) {
       e.preventDefault();
       onOpen();
+      return;
+    }
+    if (onSelect) {
+      e.preventDefault();
+      onSelect(e);
     }
   };
 

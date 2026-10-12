@@ -1,8 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type MouseEvent } from 'react';
+import { createPortal } from 'react-dom';
 import Book from './Book';
 import { BOOK_COVERS } from './BookCovers';
+import PhotobookOverlay from './PhotobookOverlay';
 import { INTRO, NAV_BOOKS } from './designTokens';
 import styles from '../app/room.module.css';
 
@@ -18,6 +20,11 @@ import styles from '../app/room.module.css';
 export default function Bookshelf() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [peekId, setPeekId] = useState<string | null>(null);
+  const [photobookOpen, setPhotobookOpen] = useState(false);
+  const [photobookOrigin, setPhotobookOrigin] = useState<{ x: number; y: number } | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   // One-time staggered intro; skipped under prefers-reduced-motion.
   useEffect(() => {
@@ -35,6 +42,15 @@ export default function Bookshelf() {
   }, []);
 
   const closeAll = useCallback(() => setOpenId(null), []);
+
+  // The Photos book opens the photobook overlay in place; it grows out of
+  // the book's position on the shelf.
+  const openPhotobook = useCallback((e: MouseEvent<HTMLAnchorElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setPhotobookOrigin({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    setOpenId(null);
+    setPhotobookOpen(true);
+  }, []);
 
   // Escape closes; clicking anywhere outside a book closes.
   // Escape closes any open cover and drops focus so a keyboard-revealed
@@ -78,6 +94,7 @@ export default function Bookshelf() {
                   peek={peekId === book.id}
                   open={openId === book.id}
                   onOpen={() => setOpenId(book.id)}
+                  onSelect={book.id === 'photos' ? openPhotobook : undefined}
                 />
               </li>
             );
@@ -85,6 +102,12 @@ export default function Bookshelf() {
         </ul>
       </nav>
       <div className={styles.plank} aria-hidden="true" />
+      {mounted &&
+        photobookOpen &&
+        createPortal(
+          <PhotobookOverlay origin={photobookOrigin} onClose={() => setPhotobookOpen(false)} />,
+          document.body,
+        )}
     </div>
   );
 }
