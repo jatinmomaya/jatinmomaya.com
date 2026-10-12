@@ -37,9 +37,11 @@ export default function Bookshelf() {
   const [aboutOpen, setAboutOpen] = useState(false);
   const [aboutOrigin, setAboutOrigin] = useState<{ x: number; y: number } | null>(null);
   const [mounted, setMounted] = useState(false);
-  // Swipe-across accordion: the book under the finger reveals like a hover.
-  const [touchRevealId, setTouchRevealId] = useState<string | null>(null);
-  const [pointerX, setPointerX] = useState<number | null>(null);
+  // Discrete focus: the pointer (or finger) selects ONE book, which blooms
+  // fully and stays bloomed while the pointer is in its zone. Measuring on
+  // the untransformed <li> wrappers keeps the focus from chasing the bloom.
+  const [focusId, setFocusId] = useState<string | null>(null);
+  const focusIdRef = useRef<string | null>(null);
   // Forgive the imprecise second tap: don't treat the pointerdown that
   // follows an open as a click-away dismiss.
   const openedAt = useRef(0);
@@ -169,59 +171,79 @@ export default function Bookshelf() {
     };
   }, [closeAll]);
 
-  // Swipe across the shelf: whichever book is under the finger lights up,
-  // accordion-style. Pure browse gesture — lifting the finger reveals
-  // nothing further; the two-tap model still handles activation.
+  // Swipe across the shelf: the finger's position drives the same discrete
+  // focus as the mouse, so a swipe ripples across the books.
   const handleShelfTouchMove = (e: React.TouchEvent<HTMLElement>) => {
     const t = e.touches[0];
     if (!t) return;
-    const under = document.elementFromPoint(t.clientX, t.clientY)?.closest?.('[data-book]');
-    setPointerX(t.clientX);
-    setTouchRevealId(under ? under.getAttribute('data-book') : null);
+    updateFocus(t.clientX);
   };
   const handleShelfPointerMove = (e: React.PointerEvent<HTMLElement>) => {
-    if (e.pointerType !== 'touch') setPointerX(e.clientX);
+    if (e.pointerType === 'touch') return;
+    updateFocus(e.clientX);
   };
-  const clearPointer = () => { setPointerX(null); setTouchRevealId(null); };
+  const clearFocus = () => updateFocus(null);
 
-  // Bloom geometry: the falloff is narrow so one book dominates while its
-  // immediate neighbors catch a gentle partial bloom (the ripple). The
-  // bloomed book is ~96px wide once turned, so neighbors shift well clear.
-  const BLOOM_FALLOFF_PX = 48;
+  // Bloom geometry: the focused book opens all the way; its immediate
+  // neighbors lean in slightly and shift well clear (the bloomed book is
+  // ~96px wide once turned).
+  const FOCUS_RANGE_PX = 72;
+  const FOCUS_STICK_PX = 10; // hysteresis: don't hand off focus on a tie
   const NEIGHBOR_SHIFT_PX = 40;
+  const RIPPLE_BLOOM = 0.32;
 
+  // Untransformed centers: the <li> wrappers never move, so the bloom
+  // can't chase its own tail.
   const bookCenterX = (id: string): number | null => {
-    const el = document.querySelector<HTMLElement>(`[data-book="${id}"]`);
-    if (!el) return null;
-    const rect = el.getBoundingClientRect();
+    const li = document.querySelector(`[data-book="${id}"]`)?.closest('li');
+    if (!li) return null;
+    const rect = li.getBoundingClientRect();
     return rect.left + rect.width / 2;
   };
-  const opennessFor = (id: string) => {
-    if (pointerX === null) return touchRevealId === id ? 1 : 0;
-    const cx = bookCenterX(id);
-    if (cx === null) return 0;
-    return Math.max(0, 1 - Math.abs(pointerX - cx) / BLOOM_FALLOFF_PX);
-  };
-  // The book nearest the pointer is the focused one; its bloom scales how
-  // far the neighbors part.
-  const focusedBook = (() => {
-    if (pointerX === null) return null;
+
+  const updateFocus = (clientX: number | null) => {
+    if (clientX === null) {
+      if (focusIdRef.current !== null) {
+        focusIdRef.current = null;
+        setFocusId(null);
+      }
+      return;
+    }
     let best: { id: string; dist: number } | null = null;
     for (const book of NAV_BOOKS) {
       const cx = bookCenterX(book.id);
       if (cx === null) continue;
-      const dist = Math.abs(pointerX - cx);
+      const dist = Math.abs(clientX - cx);
       if (!best || dist < best.dist) best = { id: book.id, dist };
     }
-    if (!best) return null;
-    return { id: best.id, bloom: Math.max(0, 1 - best.dist / BLOOM_FALLOFF_PX) };
-  })();
+    let next: string | null = null;
+    if (best && best.dist <= FOCUS_RANGE_PX) {
+      next = best.id;
+      const prev = focusIdRef.current;
+      if (prev && prev !== next) {
+        const pcx = bookCenterX(prev);
+        if (pcx !== null && best.dist > Math.abs(clientX - pcx) - FOCUS_STICK_PX) {
+          next = prev;
+        }
+      }
+    }
+    if (next !== focusIdRef.current) {
+      focusIdRef.current = next;
+      setFocusId(next);
+    }
+  };
+
+  const focusIndex = NAV_BOOKS.findIndex((b) => b.id === focusId);
+  const bloomFor = (id: string) => {
+    if (focusId === null) return 0;
+    const i = NAV_BOOKS.findIndex((b) => b.id === id);
+    if (i === focusIndex) return 1;
+    return Math.abs(i - focusIndex) === 1 ? RIPPLE_BLOOM : 0;
+  };
   const shiftFor = (id: string) => {
-    if (!focusedBook || focusedBook.id === id) return 0;
-    const cx = bookCenterX(id);
-    const fx = bookCenterX(focusedBook.id);
-    if (cx === null || fx === null) return 0;
-    return (cx < fx ? -1 : 1) * NEIGHBOR_SHIFT_PX * focusedBook.bloom;
+    if (focusId === null || focusId === id) return 0;
+    const i = NAV_BOOKS.findIndex((b) => b.id === id);
+    return (i < focusIndex ? -1 : 1) * NEIGHBOR_SHIFT_PX;
   };
 
   return (
@@ -231,10 +253,10 @@ export default function Bookshelf() {
         data-shelf-nav
         tabIndex={-1}
         onPointerMove={handleShelfPointerMove}
-        onPointerLeave={clearPointer}
+        onPointerLeave={clearFocus}
         onTouchMove={handleShelfTouchMove}
-        onTouchEnd={clearPointer}
-        onTouchCancel={clearPointer}
+        onTouchEnd={clearFocus}
+        onTouchCancel={clearFocus}
       >
         <p className={styles.visuallyHidden}>
           Three books on a shelf. Each book is a section of the site: hover, tap, or swipe across to see its cover, then open it to visit.
@@ -262,7 +284,7 @@ export default function Bookshelf() {
                           ? openSoon('field-notes')
                           : undefined
                   }
-                  openness={opennessFor(book.id)}
+                  bloom={bloomFor(book.id)}
                   shift={shiftFor(book.id)}
                 />
               </li>

@@ -25,7 +25,7 @@ interface BookProps {
    * measure the book's position for the grow animation.
    */
   onSelect?: (e: MouseEvent<HTMLAnchorElement>) => void;
-  openness: number;
+  bloom: number;
   shift: number;
 }
 
@@ -35,11 +35,11 @@ interface BookProps {
  * - Keyboard: focusing the link reveals its cover at once; Enter activates;
  *   Escape closes and moves focus to the shelf nav (handled by Bookshelf).
  */
-export default function Book({ book, cover, peek, open, onOpen, onSelect, openness, shift }: BookProps) {
+export default function Book({ book, cover, peek, open, onOpen, onSelect, bloom: bloomProp, shift }: BookProps) {
   const [focusRevealed, setFocusRevealed] = useState(false);
   const nodeRef = useRef<HTMLAnchorElement>(null);
   const lastPointerType = useRef<string>('mouse');
-  const bloom = Math.max(openness, focusRevealed || open || peek ? 1 : 0);
+  const bloom = Math.max(bloomProp, focusRevealed || open || peek ? 1 : 0);
   // Only a meaningfully bloomed book counts as revealed/expanded, so the
   // ripple on neighbors doesn't flip accessibility state.
   const revealed = bloom > 0.5;
