@@ -1,22 +1,17 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  MEXICO_PHOTOS,
-  PHOTOBOOK_DATES,
-  PHOTOBOOK_TITLE,
-  type PhotobookPhoto,
-} from './photobook/mexico';
+import type { PhotobookChapter, PhotobookPhoto } from './photobook/chapters';
+import { warmChapterPhotos } from './photobook/chapters';
 import { COMPACT_QUERY } from './designTokens';
 import styles from '../app/photobook.module.css';
 
 interface PhotobookOverlayProps {
-  /** Viewport point the book grows from (the Photos book's position). */
+  chapter: PhotobookChapter;
+  /** Viewport point the book grows from (the book's position on the shelf). */
   origin: { x: number; y: number } | null;
   onClose: () => void;
 }
-
-const LAST_PAGE = MEXICO_PHOTOS.length + 1; // 0 = cover, 1..19 photos, 20 = end
 
 function PhotoPage({
   photo,
@@ -48,16 +43,19 @@ function PhotoPage({
 }
 
 /**
- * The Photos book, opened: a full-screen photobook overlay.
+ * A photobook chapter, opened: a full-screen book overlay.
  *
  * Desktop shows two-page spreads; narrow/short screens show one page at a
  * time. A photo can be opened into a full-screen lightbox. The overlay grows
  * out of the book's position on the shelf and shrinks back on close.
  *
  * Focus contract: focus moves into the dialog on open, Tab cycles inside it,
- * and focus returns to the Photos book on close.
+ * and focus returns to the book on close (handled by the caller).
  */
-export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayProps) {
+export default function PhotobookOverlay({ chapter, origin, onClose }: PhotobookOverlayProps) {
+  const photos = chapter.photos;
+  // 0 = cover, 1..N = photos, N+1 = end page
+  const LAST_PAGE = photos.length + 1;
   const [page, setPage] = useState(0);
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [closing, setClosing] = useState(false);
@@ -134,13 +132,10 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
   useEffect(() => {
     const warm: number[] = [];
     for (let p = page - 1; p <= page + 2; p++) {
-      if (p >= 1 && p <= MEXICO_PHOTOS.length) warm.push(p - 1);
+      if (p >= 1 && p <= photos.length) warm.push(p - 1);
     }
-    warm.forEach((i) => {
-      const img = new Image();
-      img.src = MEXICO_PHOTOS[i].src;
-    });
-  }, [page]);
+    warmChapterPhotos(chapter, warm);
+  }, [chapter, page]);
 
   // Keyboard: arrows turn pages, Tab is trapped, Escape backs out.
   useEffect(() => {
@@ -151,7 +146,7 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
         return;
       }
       if (e.key === 'ArrowRight') {
-        if (lightbox !== null) setLightbox(Math.min(MEXICO_PHOTOS.length - 1, lightbox + 1));
+        if (lightbox !== null) setLightbox(Math.min(photos.length - 1, lightbox + 1));
         else next();
         return;
       }
@@ -199,7 +194,7 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
     touchStartX.current = null;
     if (Math.abs(dx) < 48) return;
     if (lightbox !== null) {
-      setLightbox(Math.max(0, Math.min(MEXICO_PHOTOS.length - 1, lightbox + (dx < 0 ? 1 : -1))));
+      setLightbox(Math.max(0, Math.min(photos.length - 1, lightbox + (dx < 0 ? 1 : -1))));
       return;
     }
     if (dx < 0) next();
@@ -223,16 +218,16 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
       : page === LAST_PAGE
         ? 'End'
         : isCompact
-          ? `Photo ${page} of ${MEXICO_PHOTOS.length}`
-          : `Pages ${page}${page + 1 <= MEXICO_PHOTOS.length ? `–${page + 1}` : ''}`;
+          ? `Photo ${page} of ${photos.length}`
+          : `Pages ${page}${page + 1 <= photos.length ? `–${page + 1}` : ''}`;
 
   const renderPages = () => {
     if (page === 0) {
       return (
         <div className={styles.titlePage}>
           <p className={styles.kicker}>A photobook</p>
-          <h2 className={styles.bookTitle}>{PHOTOBOOK_TITLE}</h2>
-          <p className={styles.bookDates}>{PHOTOBOOK_DATES}</p>
+          <h2 className={styles.bookTitle}>{chapter.title}</h2>
+          <p className={styles.bookDates}>{chapter.subtitle}</p>
           <p className={styles.hint}>Tap the edge of a page to turn it</p>
           <p className={styles.hintMobile}>Swipe or tap the edges to turn the page</p>
         </div>
@@ -243,7 +238,7 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
         <div className={styles.titlePage}>
           <p className={styles.kicker}>Fin</p>
           <p className={styles.bookDates}>
-            {MEXICO_PHOTOS.length} photographs · {PHOTOBOOK_DATES}
+            {photos.length} photographs · {chapter.subtitle}
           </p>
           <button type="button" className={styles.closeBook} onClick={requestClose}>
             Close the book
@@ -251,8 +246,8 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
         </div>
       );
     }
-    const left = MEXICO_PHOTOS[page - 1];
-    const right = !isCompact && page < MEXICO_PHOTOS.length ? MEXICO_PHOTOS[page] : null;
+    const left = photos[page - 1];
+    const right = !isCompact && page < photos.length ? photos[page] : null;
     return (
       <>
         <PhotoPage photo={left} onZoom={(e) => openLightbox(page - 1, e.currentTarget)} />
@@ -272,7 +267,7 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
       style={originStyle}
       role="dialog"
       aria-modal="true"
-      aria-label={`${PHOTOBOOK_TITLE} photobook`}
+      aria-label={`${chapter.title} photobook`}
       tabIndex={-1}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
@@ -285,8 +280,6 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
       <div
         ref={bookRef}
         className={styles.book}
-        key={page}
-        aria-label={spreadLabel}
         aria-hidden={lightbox !== null}
       >
         <button type="button" className={styles.close} onClick={requestClose} aria-label="Close photobook">
@@ -303,7 +296,7 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
           ‹
         </button>
 
-        <div className={styles.spread}>{renderPages()}</div>
+        <div className={styles.spread} key={page} aria-label={spreadLabel}>{renderPages()}</div>
 
         <button
           type="button"
@@ -323,20 +316,20 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
       {lightbox !== null && (
         <div ref={lightboxRef} className={styles.lightbox} onClick={() => setLightbox(null)}>
           <img
-            src={MEXICO_PHOTOS[lightbox].src}
-            alt={MEXICO_PHOTOS[lightbox].alt}
+            src={photos[lightbox].src}
+            alt={photos[lightbox].alt}
             className={styles.lightboxPhoto}
-            width={MEXICO_PHOTOS[lightbox].width}
-            height={MEXICO_PHOTOS[lightbox].height}
+            width={photos[lightbox].width}
+            height={photos[lightbox].height}
             onClick={(e) => e.stopPropagation()}
           />
-          <p className={styles.lightboxCaption}>{MEXICO_PHOTOS[lightbox].caption}</p>
+          <p className={styles.lightboxCaption}>{photos[lightbox].caption}</p>
           <button
             ref={lightboxCloseRef}
             type="button"
             className={styles.close}
             onClick={() => setLightbox(null)}
-            aria-label={`Back to the book, ${MEXICO_PHOTOS[lightbox].alt}`}
+            aria-label={`Back to the book, ${photos[lightbox].alt}`}
           >
             ×
           </button>
@@ -357,9 +350,9 @@ export default function PhotobookOverlay({ origin, onClose }: PhotobookOverlayPr
             className={`${styles.turn} ${styles.turnNext} ${styles.onDark}`}
             onClick={(e) => {
               e.stopPropagation();
-              setLightbox(Math.min(MEXICO_PHOTOS.length - 1, lightbox + 1));
+              setLightbox(Math.min(photos.length - 1, lightbox + 1));
             }}
-            disabled={lightbox === MEXICO_PHOTOS.length - 1}
+            disabled={lightbox === photos.length - 1}
             aria-label="Next photo"
           >
             ›

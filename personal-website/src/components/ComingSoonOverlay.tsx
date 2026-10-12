@@ -50,13 +50,32 @@ export default function ComingSoonOverlay({ kind, origin, onClose }: ComingSoonO
     window.setTimeout(onClose, 240);
   }, [onClose, reducedMotion]);
 
-  // Lock body scroll, focus the dialog, and close on Escape.
+  // Lock body scroll, focus the dialog, close on Escape, trap Tab inside.
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     dialogRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') requestClose();
+      if (e.key === 'Escape') {
+        requestClose();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const scope = dialogRef.current;
+      if (!scope) return;
+      const focusables = Array.from(
+        scope.querySelectorAll<HTMLElement>('button:not([disabled]), a[href]'),
+      ).filter((el) => el.getClientRects().length > 0);
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener('keydown', onKey);
     return () => {

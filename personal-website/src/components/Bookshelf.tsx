@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import Book from './Book';
 import { BOOK_COVERS } from './BookCovers';
 import { INTRO, NAV_BOOKS } from './designTokens';
-import { warmPhotos } from './photobook/mexico';
+import { getChapter, warmChapterPhotos, type PhotobookChapter } from './photobook/chapters';
 import type { ComingSoonKind } from './ComingSoonOverlay';
 import styles from '../app/room.module.css';
 
@@ -29,7 +29,8 @@ const AboutOverlay = dynamic(() => import('./AboutOverlay'), { ssr: false });
 export default function Bookshelf() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [peekId, setPeekId] = useState<string | null>(null);
-  const [photobookOpen, setPhotobookOpen] = useState(false);
+  const [chapter, setChapter] = useState<PhotobookChapter | null>(null);
+  const [chapterOpener, setChapterOpener] = useState('photos');
   const [photobookOrigin, setPhotobookOrigin] = useState<{ x: number; y: number } | null>(null);
   const [soonKind, setSoonKind] = useState<ComingSoonKind | null>(null);
   const [soonOrigin, setSoonOrigin] = useState<{ x: number; y: number } | null>(null);
@@ -62,7 +63,10 @@ export default function Bookshelf() {
   // Intent preloading: the moment the Photos book shows its cover, warm
   // the first photos so opening the book isn't a cold 4G round trip.
   useEffect(() => {
-    if (peekId === 'photos' || openId === 'photos') warmPhotos([0, 1]);
+    if (peekId === 'photos' || openId === 'photos') {
+      const mexico = getChapter('mexico');
+      if (mexico) warmChapterPhotos(mexico, [0, 1]);
+    }
   }, [peekId, openId]);
 
   const closeAll = useCallback(() => setOpenId(null), []);
@@ -73,22 +77,29 @@ export default function Bookshelf() {
   }, []);
 
   // Focus contract: when the photobook closes, focus returns to the
-  // Photos book that opened it.
-  const closePhotobook = useCallback(() => {
-    setPhotobookOpen(false);
+  // book that opened it.
+  const closeChapter = useCallback(() => {
+    const opener = chapterOpener;
+    setChapter(null);
     window.setTimeout(() => {
-      document.querySelector<HTMLElement>('[data-book="photos"]')?.focus();
+      document.querySelector<HTMLElement>(`[data-book="${opener}"]`)?.focus();
     }, 0);
-  }, []);
+  }, [chapterOpener]);
 
-  // The Photos book opens the photobook overlay in place; it grows out of
+  // A photobook book opens its chapter overlay in place; it grows out of
   // the book's position on the shelf.
-  const openPhotobook = useCallback((e: MouseEvent<HTMLAnchorElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setPhotobookOrigin({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
-    setOpenId(null);
-    setPhotobookOpen(true);
-  }, []);
+  const openChapter = useCallback(
+    (bookId: string, chapterId: string) => (e: MouseEvent<HTMLAnchorElement>) => {
+      const next = getChapter(chapterId);
+      if (!next) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      setPhotobookOrigin({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+      setOpenId(null);
+      setChapterOpener(bookId);
+      setChapter(next);
+    },
+    [],
+  );
 
   // Focus contract: when the About page closes, focus returns to the
   // About book that opened it.
@@ -197,7 +208,7 @@ export default function Bookshelf() {
                   onOpen={() => handleOpen(book.id)}
                   onSelect={
                     book.id === 'photos'
-                      ? openPhotobook
+                      ? openChapter('photos', 'mexico')
                       : book.id === 'about'
                         ? openAbout
                         : book.id === 'field-notes'
@@ -213,9 +224,9 @@ export default function Bookshelf() {
       </nav>
       <div className={styles.plank} aria-hidden="true" />
       {mounted &&
-        photobookOpen &&
+        chapter &&
         createPortal(
-          <PhotobookOverlay origin={photobookOrigin} onClose={closePhotobook} />,
+          <PhotobookOverlay chapter={chapter} origin={photobookOrigin} onClose={closeChapter} />,
           document.body,
         )}
       {mounted &&

@@ -14,7 +14,7 @@ const WORK = [
     org: 'ZS Associates',
     dates: 'Jun 2025 \u2013 present',
     role: 'Associate Consultant, Strategy Insights & Planning',
-    body: 'Led digital marketing operations for Amgen\u2019s biggest brands: campaign ops strategy across Salesforce Marketing Cloud and Data 360. Now I work on strategy for AI tools built for Amgen\u2019s field team.',
+    body: 'Led digital marketing operations for Amgen\u2019s biggest brands \u2014 campaign strategy and execution across Salesforce Marketing Cloud and Data 360. Now I work on strategy for AI tools built for Amgen\u2019s field team.',
   },
   {
     org: 'Molina Healthcare',

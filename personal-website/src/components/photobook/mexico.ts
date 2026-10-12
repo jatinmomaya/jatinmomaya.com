@@ -1,15 +1,9 @@
-export interface PhotobookPhoto {
-  src: string;
-  caption: string;
-  alt: string;
-  /** Intrinsic dimensions (all 1170px wide); passed to <img> to prevent reflow. */
-  width: number;
-  height: number;
-}
+import type { PhotobookChapter, PhotobookPhoto } from './types';
+
+export type { PhotobookPhoto };
 
 export const PHOTOBOOK_TITLE = 'Mexico';
 export const PHOTOBOOK_DATES = 'September 2026';
-
 /**
  * The 19 curated photos, in Jatin's order: Tolantongo's waterfalls and
  * pools, Mexico City, then the Teotihuacán balloon flight.
@@ -50,3 +44,10 @@ export function warmPhotos(indexes: number[]) {
     img.src = MEXICO_PHOTOS[i].src;
   });
 }
+
+export const MEXICO_CHAPTER: PhotobookChapter = {
+  id: 'mexico',
+  title: PHOTOBOOK_TITLE,
+  subtitle: PHOTOBOOK_DATES,
+  photos: MEXICO_PHOTOS,
+};
