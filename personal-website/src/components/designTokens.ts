@@ -48,6 +48,23 @@ export const NAV_BOOKS: NavBook[] = [
   },
 ];
 
+export interface PlaceholderBook {
+  id: string;
+  title: string;
+  spine: string;
+  width: number;
+  height: number;
+}
+
+// These use the same spine renderer as navigation books, so a future
+// placeholder can move into NAV_BOOKS without rebuilding its visual treatment.
+export const PLACEHOLDER_BOOKS: PlaceholderBook[] = [
+  { id: 'placeholder-essays', title: 'Collected essays', spine: '#455044', width: 21, height: 74 },
+  { id: 'placeholder-atlas', title: 'An atlas of night', spine: '#49313a', width: 17, height: 94 },
+  { id: 'placeholder-poems', title: 'Selected poems', spine: '#343d50', width: 23, height: 82 },
+  { id: 'placeholder-gardens', title: 'Winter gardens', spine: '#554a32', width: 18, height: 67 },
+];
+
 /** Staggered intro timing (skipped under prefers-reduced-motion). */
 export const INTRO = {
   initialDelayMs: 600,

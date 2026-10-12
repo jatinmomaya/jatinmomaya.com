@@ -10,6 +10,7 @@ import {
 import type { NavBook } from './designTokens';
 import styles from '../app/room.module.css';
 import { springBook } from './anim';
+import SpineFace from './SpineFace';
 
 interface BookProps {
   book: NavBook;
@@ -106,9 +107,7 @@ export default function Book({ book, cover, peek, open, onOpen, onSelect, bloom:
       onFocus={() => setFocusRevealed(true)}
       onBlur={() => setFocusRevealed(false)}
     >
-      <span className={styles.spine}>
-        <span className={styles.spineTitle}>{book.title}</span>
-      </span>
+      <SpineFace title={book.title} color={book.spine} ink={book.ink} />
       <span className={styles.cover} aria-hidden="true" style={{ opacity: bloom }}>
         {cover}
         <span className={styles.go}>→</span>

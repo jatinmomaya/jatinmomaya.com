@@ -297,6 +297,7 @@ export default function Bookshelf() {
         <span className={styles.vase} />
       </div>
       <div className={styles.plank} aria-hidden="true" />
+      <h1 className={styles.plaque}>Jatin Momaya</h1>
       {mounted &&
         chapter &&
         createPortal(

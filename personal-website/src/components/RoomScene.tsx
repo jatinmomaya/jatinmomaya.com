@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import Bookshelf from './Bookshelf';
-import BrassPlaque from './BrassPlaque';
 import FloorLamp from './FloorLamp';
 import PictureFrame from './PictureFrame';
+import SpineFace from './SpineFace';
+import { PLACEHOLDER_BOOKS } from './designTokens';
 import styles from '../app/room.module.css';
 
 /**
@@ -18,7 +19,6 @@ export default function RoomScene() {
     <div className={lampOn ? styles.room : `${styles.room} ${styles.lampOff}`}>
       <div className={styles.grain} aria-hidden="true" />
       <div className={styles.moonwash} aria-hidden="true" />
-      <BrassPlaque />
       <main className={styles.scene}>
         <div className={styles.plaster} aria-hidden="true" />
         <div className={styles.window} aria-hidden="true">
@@ -39,6 +39,21 @@ export default function RoomScene() {
         <div className={styles.floor} aria-hidden="true" />
         <FloorLamp on={lampOn} onToggle={() => setLampOn((v) => !v)} />
         <Bookshelf />
+        <div className={styles.lowerShelf} aria-hidden="true">
+          <div className={styles.lowerShelfBooks}>
+            {PLACEHOLDER_BOOKS.map((book, index) => (
+              <span
+                key={book.id}
+                className={`${styles.placeholderBook} ${index === 2 ? styles.placeholderLean : ''}`}
+                style={{ width: book.width, height: book.height }}
+              >
+                <SpineFace title={book.title} color={book.spine} />
+              </span>
+            ))}
+            <span className={styles.smallBookend} />
+          </div>
+          <div className={styles.lowerPlank} />
+        </div>
       </main>
     </div>
   );

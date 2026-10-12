@@ -77,10 +77,13 @@ export function springBook(el: HTMLElement, values: { translateX: number; transl
   animate(el, { ...values, ease: spring({ stiffness: 150, damping: 16, mass: 0.7 }) });
 }
 
-export function springCord(el: SVGElement) {
+export function springCord(lineEl: SVGElement, knobEl: SVGElement) {
   if (prefersReducedMotion()) {
-    el.style.transform = 'translateY(0px)';
+    lineEl.style.transform = 'scaleY(1)';
+    knobEl.style.transform = 'translateY(0px)';
     return;
   }
-  animate(el, { translateY: [0, 12, 0], ease: spring({ stiffness: 220, damping: 12, mass: 0.6 }) });
+  const cordSpring = spring({ stiffness: 220, damping: 12, mass: 0.6 });
+  animate(lineEl, { scaleY: [1, 1.35, 1], ease: cordSpring });
+  animate(knobEl, { translateY: [0, 12, 0], ease: spring({ stiffness: 220, damping: 12, mass: 0.6 }) });
 }

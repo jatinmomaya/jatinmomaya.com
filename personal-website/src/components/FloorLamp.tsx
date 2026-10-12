@@ -13,7 +13,8 @@ interface FloorLampProps {
  * Toggling the lamp gives its pull cord a small springing dip.
  */
 export default function FloorLamp({ on, onToggle }: FloorLampProps) {
-  const cordRef = useRef<SVGGElement>(null);
+  const cordLineRef = useRef<SVGLineElement>(null);
+  const cordKnobRef = useRef<SVGCircleElement>(null);
   const mounted = useRef(false);
 
   // Flicker on user toggle (not on first mount).
@@ -22,7 +23,7 @@ export default function FloorLamp({ on, onToggle }: FloorLampProps) {
       mounted.current = true;
       return;
     }
-    if (cordRef.current) springCord(cordRef.current);
+    if (cordLineRef.current && cordKnobRef.current) springCord(cordLineRef.current, cordKnobRef.current);
   }, [on]);
 
   return (
@@ -47,10 +48,8 @@ export default function FloorLamp({ on, onToggle }: FloorLampProps) {
           <path d="M28 24 L104 24 L102 36 L30 36 Z" fill={on ? '#8a6f4d' : '#6e5f4b'} />
           <ellipse cx="66" cy="94" rx="32" ry="6" fill={on ? '#c9ae7e' : '#9c8c72'} />
           <circle cx="66" cy="100" r="8" fill={on ? '#ffe2b0' : '#6b6257'} />
-          <g ref={cordRef}>
-            <line x1="88" y1="92" x2="88" y2="126" stroke="#2b2b2b" strokeWidth="2" />
-            <circle cx="88" cy="131" r="4" fill="#8a6f4d" />
-          </g>
+          <line ref={cordLineRef} className={styles.cordLine} x1="88" y1="92" x2="88" y2="126" stroke="#2b2b2b" strokeWidth="2" />
+          <circle ref={cordKnobRef} className={styles.cordKnob} cx="88" cy="131" r="4" fill="#8a6f4d" />
           <rect x="61" y="94" width="10" height="342" fill="#2b2b2b" />
           <ellipse cx="66" cy="466" rx="36" ry="11" fill="#1f1f1f" />
           <rect x="61" y="436" width="10" height="18" fill="#2b2b2b" />
