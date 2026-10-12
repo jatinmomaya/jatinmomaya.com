@@ -1,0 +1,10 @@
+# Next.js build output (we commit the static export at the repo root, not these)
+personal-website/.next/
+personal-website/out/
+personal-website/node_modules/
+
+# Logs
+*.log
+
+# OS
+.DS_Store

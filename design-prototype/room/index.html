@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e8dfcf">
+  <title>Jatin Momaya</title>
+  <meta name="description" content="A small room for photographs, field notes, and a little about Jatin Momaya.">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+<main>
+  <section class="room" id="top" aria-label="A quiet room with shelves and books">
+    <header class="plaque"><h1>Jatin Momaya</h1></header>
+
+    <div class="picture picture-one" aria-hidden="true">
+      <svg viewBox="0 0 130 170"><rect width="130" height="170" fill="#eee9dc"/><path d="M-5 132 35 82l28 34 30-58 49 74v40H-5z" fill="#a5a58a"/><path d="m14 155 43-58 22 28 20-21 44 57v17H14z" fill="#78826d"/><circle cx="91" cy="47" r="15" fill="#c5a774"/></svg>
+    </div>
+    <div class="picture picture-two" aria-hidden="true">
+      <svg viewBox="0 0 130 170"><rect width="130" height="170" fill="#ede6d8"/><path d="M65 143V47m0 55c-31 0-39-22-39-44 24 0 39 11 39 44Zm0-26c0-29 14-43 38-45 0 25-9 43-38 45Zm0 52c-24 0-33-16-34-34 20 0 34 9 34 34Zm0-21c0-23 10-34 29-36 0 20-7 35-29 36Z" fill="none" stroke="#71806a" stroke-width="3" stroke-linecap="round"/><path d="M39 148h52" stroke="#b49a71" stroke-width="2"/></svg>
+    </div>
+
+    <div class="lamp" aria-hidden="true">
+      <div class="lamp-glow"></div>
+      <svg viewBox="0 0 170 660" preserveAspectRatio="none">
+        <defs><linearGradient id="shade" x1="0" x2="1"><stop stop-color="#b9aa91"/><stop offset=".18" stop-color="#f3ead9"/><stop offset=".78" stop-color="#e8ddca"/><stop offset="1" stop-color="#afa087"/></linearGradient><linearGradient id="metal" x1="0" x2="1"><stop stop-color="#383a37"/><stop offset=".48" stop-color="#77766e"/><stop offset="1" stop-color="#343632"/></linearGradient></defs>
+        <path d="M36 20h98l16 130H20z" fill="url(#shade)"/><path d="M25 146h124" stroke="#a99a81" stroke-width="5"/><path d="M84 146v463" stroke="url(#metal)" stroke-width="6"/><path d="M50 621q34-17 68 0l15 22H35z" fill="url(#metal)"/><ellipse cx="84" cy="646" rx="60" ry="13" fill="#393a36"/><ellipse cx="84" cy="643" rx="56" ry="8" fill="#77746a"/>
+      </svg>
+    </div>
+
+    <div class="shelf shelf-main" aria-hidden="true"><i></i><b></b></div>
+    <div class="shelf shelf-reading" aria-hidden="true"><i></i><b></b></div>
+
+    <div class="top-books" aria-label="Books on the top shelf">
+      <div class="bookend" aria-hidden="true"><i></i></div>
+      <nav class="book-row" aria-label="Main sections">
+        <a class="book photos" href="#photos" aria-label="Photos" aria-expanded="false" style="--delay:.26s">
+          <span class="book-solid"><span class="pages"></span><span class="front"><i></i><b>Photos</b><small>Jatin Momaya</small></span><span class="back"></span><span class="spine">Photos</span></span>
+          <span class="touch-cue" aria-hidden="true">→</span>
+        </a>
+        <a class="book notes" href="#field-notes" aria-label="Field notes" aria-expanded="false" style="--delay:.48s">
+          <span class="book-solid"><span class="pages"></span><span class="front"><i></i><b>Field<br>notes</b><small>Jatin Momaya</small></span><span class="back"></span><span class="spine">Field notes</span></span>
+          <span class="touch-cue" aria-hidden="true">→</span>
+        </a>
+        <a class="book about" href="#about" aria-label="About" aria-expanded="false" style="--delay:.70s">
+          <span class="book-solid"><span class="pages"></span><span class="front"><i></i><b>About</b><small>Jatin Momaya</small></span><span class="back"></span><span class="spine">About</span></span>
+          <span class="touch-cue" aria-hidden="true">→</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="reading-stack" aria-label="Decorative books on the lower shelf">
+      <i></i><i></i><i></i><i></i><span>now reading</span>
+    </div>
+    <div class="baseboard" aria-hidden="true"></div><div class="floor" aria-hidden="true"></div>
+  </section>
+
+  <section class="destination" id="photos" aria-labelledby="photos-heading"><div><p class="eyebrow">01 / Photos</p><h2 id="photos-heading">Photos</h2><p>Photographs to come.</p><a href="#top" class="back-link">Back to the room ↑</a></div></section>
+  <section class="destination notes-destination" id="field-notes" aria-labelledby="notes-heading"><div><p class="eyebrow">02 / Field notes</p><h2 id="notes-heading">Field notes</h2><p>Notes to come.</p><a href="#top" class="back-link">Back to the room ↑</a></div></section>
+  <section class="destination about-destination" id="about" aria-labelledby="about-heading"><div><p class="eyebrow">03 / About</p><h2 id="about-heading">About</h2><p>I’m a strategy consultant in Los Angeles working on AI tools.</p><a href="#top" class="back-link">Back to the room ↑</a></div></section>
+</main>
+</body>
+</html>
