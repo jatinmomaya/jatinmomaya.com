@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  /* Static export for the Vercel preview on the prototype branch. */
+  output: "export",
 };
 
 export default nextConfig;
