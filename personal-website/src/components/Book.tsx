@@ -31,7 +31,7 @@ interface BookProps {
 }
 
 /**
- * One navigation book with a continuous shelf driven bloom.
+ * One navigation book with a discrete shelf-driven bloom.
  * Touch taps use the two-tap model, while keyboard focus blooms the cover.
  * - Keyboard: focusing the link reveals its cover at once; Enter activates;
  *   Escape closes and moves focus to the shelf nav (handled by Bookshelf).
@@ -62,7 +62,6 @@ export default function Book({ book, cover, peek, open, onOpen, onSelect, bloom:
 
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
     const touchTap = lastPointerType.current === 'touch';
-    // Any activation clears a hover reveal so it can never stick.
     if (touchTap && !open) {
       e.preventDefault();
       onOpen();
