@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { playCloseAnimation, playOpenAnimation } from './anim';
 import styles from '../app/comingsoon.module.css';
 
 export type ComingSoonKind = 'field-notes';
@@ -47,8 +48,17 @@ export default function ComingSoonOverlay({ kind, origin, onClose }: ComingSoonO
       return;
     }
     setClosing(true);
-    window.setTimeout(onClose, 240);
+    const sheet = dialogRef.current;
+    if (sheet) playCloseAnimation(sheet).then(onClose);
+    else onClose();
   }, [onClose, reducedMotion]);
+
+  // 3D book-opening animation on mount (anime.js timeline).
+  useEffect(() => {
+    if (dialogRef.current) playOpenAnimation(dialogRef.current, origin);
+    // origin is fixed for the overlay's lifetime
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Lock body scroll, focus the dialog, close on Escape, trap Tab inside.
   useEffect(() => {
@@ -87,7 +97,6 @@ export default function ComingSoonOverlay({ kind, origin, onClose }: ComingSoonO
   return (
     <div
       className={`${styles.overlay}${closing ? ` ${styles.closing}` : ''}`}
-      style={{ '--ox': `${origin?.x ?? 0}px`, '--oy': `${origin?.y ?? 0}px` } as React.CSSProperties}
     >
       <div className={styles.scrim} onClick={requestClose} aria-hidden="true" />
       <div

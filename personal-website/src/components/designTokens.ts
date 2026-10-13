@@ -20,7 +20,7 @@ export const NAV_BOOKS: NavBook[] = [
   {
     id: 'photos',
     title: 'Mexico Photobook',
-    spine: '#33523f',
+    spine: '#2e4a38',
     ink: '#f3ead6',
     // Photobooks are bigger than reading books — this one stands taller
     // on the shelf, with room on the spine for the full title.
@@ -31,8 +31,8 @@ export const NAV_BOOKS: NavBook[] = [
   {
     id: 'field-notes',
     title: 'Field notes',
-    spine: '#c9a86a',
-    ink: '#4a3b22',
+    spine: '#6f3128',
+    ink: '#f3ead6',
     width: 18,
     height: 100,
     href: '/blog',
@@ -40,12 +40,29 @@ export const NAV_BOOKS: NavBook[] = [
   {
     id: 'about',
     title: 'About',
-    spine: '#2e3d5c',
+    spine: '#26334f',
     ink: '#e8e4d8',
     width: 22,
     height: 92,
     href: '#about',
   },
+];
+
+export interface PlaceholderBook {
+  id: string;
+  title: string;
+  spine: string;
+  width: number;
+  height: number;
+}
+
+// These use the same spine renderer as navigation books, so a future
+// placeholder can move into NAV_BOOKS without rebuilding its visual treatment.
+export const PLACEHOLDER_BOOKS: PlaceholderBook[] = [
+  { id: 'placeholder-essays', title: 'Collected essays', spine: '#455044', width: 21, height: 74 },
+  { id: 'placeholder-atlas', title: 'An atlas of night', spine: '#49313a', width: 17, height: 94 },
+  { id: 'placeholder-poems', title: 'Selected poems', spine: '#343d50', width: 23, height: 82 },
+  { id: 'placeholder-gardens', title: 'Winter gardens', spine: '#554a32', width: 18, height: 67 },
 ];
 
 /** Staggered intro timing (skipped under prefers-reduced-motion). */

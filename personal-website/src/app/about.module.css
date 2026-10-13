@@ -9,8 +9,7 @@
   justify-content: center;
   padding: 24px;
   overscroll-behavior: none;
-  --ox: 50vw;
-  --oy: 50vh;
+  perspective: 1400px;
 }
 
 .scrim {
@@ -37,33 +36,15 @@
   box-shadow:
     0 32px 70px rgba(0, 0, 0, 0.5),
     inset 0 0 50px rgba(120, 90, 40, 0.07);
-  transform-origin: var(--ox) var(--oy);
-  animation: growIn 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+  /* Open/close is driven by anime.js (playOpenAnimation /
+     playCloseAnimation) so the 3D tilt can originate at the book. */
   font-family: Georgia, 'Times New Roman', serif;
   color: #3d3226;
   text-align: left;
 }
 
-@keyframes growIn {
-  from {
-    transform: scale(0.12);
-    opacity: 0;
-  }
-}
-
-.overlay.closing .sheet {
-  animation: shrinkOut 0.24s ease forwards;
-}
-
 .overlay.closing .scrim {
   animation: scrimOut 0.24s ease forwards;
-}
-
-@keyframes shrinkOut {
-  to {
-    transform: scale(0.12);
-    opacity: 0;
-  }
 }
 
 @keyframes scrimOut {

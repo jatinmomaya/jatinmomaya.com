@@ -1,15 +1,16 @@
 'use client';
 
 import {
-  useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
   type MouseEvent,
-  type PointerEvent as ReactPointerEvent,
 } from 'react';
 import type { NavBook } from './designTokens';
 import styles from '../app/room.module.css';
+import { springBook } from './anim';
+import SpineFace from './SpineFace';
 
 interface BookProps {
   book: NavBook;
@@ -25,63 +26,42 @@ interface BookProps {
    * measure the book's position for the grow animation.
    */
   onSelect?: (e: MouseEvent<HTMLAnchorElement>) => void;
-  /**
-   * Externally forced reveal (the swipe-across accordion): the book under
-   * the finger lights up like a hover, without activating.
-   */
-  forceReveal?: boolean;
+  bloom: number;
+  shift: number;
 }
 
-/** Hover-intent delay: a cursor sweep must linger this long to count. */
-const HOVER_INTENT_MS = 80;
-
 /**
- * One navigation book: spine on the shelf, cover revealed on interaction.
- *
- * The reveal is owned by React state (not CSS :hover), so the 80ms
- * hover-intent gate applies to the *whole* reveal — cover pop, book lift,
- * and spine dimming — and closing is always instant.
- *
- * Pointer model is classified per event, never once per device: mouse/pen
- * hover reveals after the intent delay; touch taps use the two-tap model
- * (first tap reveals the cover, second activates). This keeps touchscreen
- * laptops — hover-capable AND touch-capable — correct under both inputs.
+ * One navigation book with a discrete shelf-driven bloom.
+ * Touch taps use the two-tap model, while keyboard focus blooms the cover.
  * - Keyboard: focusing the link reveals its cover at once; Enter activates;
  *   Escape closes and moves focus to the shelf nav (handled by Bookshelf).
  */
-export default function Book({ book, cover, peek, open, onOpen, onSelect, forceReveal }: BookProps) {
-  const [hoverRevealed, setHoverRevealed] = useState(false);
+export default function Book({ book, cover, peek, open, onOpen, onSelect, bloom: bloomProp, shift }: BookProps) {
   const [focusRevealed, setFocusRevealed] = useState(false);
-  const intentTimer = useRef<number | null>(null);
+  const nodeRef = useRef<HTMLAnchorElement>(null);
   const lastPointerType = useRef<string>('mouse');
-
-  useEffect(
-    () => () => {
-      if (intentTimer.current !== null) window.clearTimeout(intentTimer.current);
-    },
-    [],
-  );
-
-  const revealed = hoverRevealed || focusRevealed || open || peek || forceReveal;
+  const bloom = Math.max(bloomProp, focusRevealed || open || peek ? 1 : 0);
+  // Only a meaningfully bloomed book counts as revealed/expanded, so the
+  // ripple on neighbors doesn't flip accessibility state.
+  const revealed = bloom > 0.5;
   // aria-expanded reports the user's own reveal, not the intro peek.
-  const expanded = hoverRevealed || focusRevealed || open;
+  const expanded = (focusRevealed || open || bloom > 0.5) && !peek;
 
-  const handlePointerEnter = (e: ReactPointerEvent<HTMLAnchorElement>) => {
-    if (e.pointerType === 'touch') return;
-    if (intentTimer.current !== null) window.clearTimeout(intentTimer.current);
-    intentTimer.current = window.setTimeout(() => setHoverRevealed(true), HOVER_INTENT_MS);
-  };
-
-  const handlePointerLeave = (e: ReactPointerEvent<HTMLAnchorElement>) => {
-    if (e.pointerType === 'touch') return;
-    if (intentTimer.current !== null) window.clearTimeout(intentTimer.current);
-    setHoverRevealed(false);
-  };
+  useLayoutEffect(() => {
+    if (!nodeRef.current) return;
+    // The bloom presents the full front cover: mostly face-on with a hint
+    // of 3D turn, lifted and enlarged like the book was pulled off the
+    // shelf toward the viewer.
+    springBook(nodeRef.current, {
+      translateX: shift,
+      translateY: -14 * bloom,
+      rotateY: -32 * bloom + (shift === 0 ? 0 : -Math.sign(shift) * 4),
+      scale: 1 + 0.18 * bloom,
+    });
+  }, [bloom, shift]);
 
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
     const touchTap = lastPointerType.current === 'touch';
-    // Any activation clears a hover reveal so it can never stick.
-    setHoverRevealed(false);
     if (touchTap && !open) {
       e.preventDefault();
       onOpen();
@@ -112,6 +92,7 @@ export default function Book({ book, cover, peek, open, onOpen, onSelect, forceR
   return (
     <a
       href={book.href}
+      ref={nodeRef}
       data-book={book.id}
       className={className}
       style={style}
@@ -122,15 +103,11 @@ export default function Book({ book, cover, peek, open, onOpen, onSelect, forceR
       onPointerDown={(e) => {
         lastPointerType.current = e.pointerType;
       }}
-      onPointerEnter={handlePointerEnter}
-      onPointerLeave={handlePointerLeave}
       onFocus={() => setFocusRevealed(true)}
       onBlur={() => setFocusRevealed(false)}
     >
-      <span className={styles.spine}>
-        <span className={styles.spineTitle}>{book.title}</span>
-      </span>
-      <span className={styles.cover} aria-hidden="true">
+      <SpineFace title={book.title} color={book.spine} ink={book.ink} />
+      <span className={styles.cover} aria-hidden="true" style={{ opacity: bloom }}>
         {cover}
         <span className={styles.go}>→</span>
       </span>

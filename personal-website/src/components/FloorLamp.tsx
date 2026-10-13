@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react';
+import { springCord } from './anim';
 import styles from '../app/room.module.css';
 
 interface FloorLampProps {
@@ -8,8 +10,22 @@ interface FloorLampProps {
 /**
  * Tall floor lamp with a fabric drum shade, plus its warm pool of light.
  * The lamp is a switch: clicking or tapping it turns the light on and off.
+ * Toggling the lamp gives its pull cord a small springing dip.
  */
 export default function FloorLamp({ on, onToggle }: FloorLampProps) {
+  const cordLineRef = useRef<SVGLineElement>(null);
+  const cordKnobRef = useRef<SVGCircleElement>(null);
+  const mounted = useRef(false);
+
+  // Flicker on user toggle (not on first mount).
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
+    if (cordLineRef.current && cordKnobRef.current) springCord(cordLineRef.current, cordKnobRef.current);
+  }, [on]);
+
   return (
     <>
       <div className={on ? styles.lampGlow : `${styles.lampGlow} ${styles.lampGlowOff}`} aria-hidden="true" />
@@ -32,11 +48,11 @@ export default function FloorLamp({ on, onToggle }: FloorLampProps) {
           <path d="M28 24 L104 24 L102 36 L30 36 Z" fill={on ? '#8a6f4d' : '#6e5f4b'} />
           <ellipse cx="66" cy="94" rx="32" ry="6" fill={on ? '#c9ae7e' : '#9c8c72'} />
           <circle cx="66" cy="100" r="8" fill={on ? '#ffe2b0' : '#6b6257'} />
-          <line x1="88" y1="92" x2="88" y2="126" stroke="#4a4a4a" strokeWidth="2" />
-          <circle cx="88" cy="131" r="4" fill="#8a6f4d" />
-          <rect x="61" y="94" width="10" height="342" fill="#4a4a4a" />
-          <ellipse cx="66" cy="466" rx="36" ry="11" fill="#3a3a3a" />
-          <rect x="61" y="436" width="10" height="18" fill="#4a4a4a" />
+          <line ref={cordLineRef} className={styles.cordLine} x1="88" y1="92" x2="88" y2="126" stroke="#2b2b2b" strokeWidth="2" />
+          <circle ref={cordKnobRef} className={styles.cordKnob} cx="88" cy="131" r="4" fill="#8a6f4d" />
+          <rect x="61" y="94" width="10" height="342" fill="#2b2b2b" />
+          <ellipse cx="66" cy="466" rx="36" ry="11" fill="#1f1f1f" />
+          <rect x="61" y="436" width="10" height="18" fill="#2b2b2b" />
         </svg>
       </button>
     </>
