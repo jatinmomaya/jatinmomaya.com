@@ -1,4 +1,5 @@
 import type { Viewport } from 'next';
+import { Analytics } from '@vercel/analytics/react';
 import ConditionalHeader from '../components/ConditionalHeader';
 import "./globals.css";
 
@@ -14,6 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ConditionalHeader />
         {children}
+        <Analytics />
       </body>
     </html>
   );
