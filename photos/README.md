@@ -1,24 +1,42 @@
 # Photos
 
-One folder per photobook chapter. The folder name is the chapter id and must
-match the id in `src/components/photobook/chapters.ts`.
+One folder per trip: `public/photos/<trip-id>/`. Each trip also has one data
+file, `src/data/trips/<trip-id>.json`, which is the only thing the site reads.
+A new trip shows up on the board and on `/trips` as soon as its file exists;
+there is nothing else to register or place.
 
-## Adding a new chapter
+## Adding a trip
 
-1. Put the full-size originals in `public/photos/<chapter-id>/src/`.
-2. Run `npm run photos -- <chapter-id>` from `personal-website/`. It writes
-   `NN.jpg` (1170px wide, quality 68, for the photobook) and `t/NN.jpg`
-   (800px wide, for the pinboard prints), numbered in file-name order. A
-   19-photo chapter lands around 2.6 MB for the photobook plus 1.3 MB of
-   thumbnails. Delete `src/` before committing; originals do not belong in git.
-3. Add a data file `src/components/photobook/<id>.ts` (copy `mexico.ts`):
-   one entry per photo with `src`, `caption`, `alt`, and the intrinsic
-   `width`/`height` of the `NN.jpg` (prevents layout shift).
-4. Register the chapter in `CHAPTERS` inside
-   `src/components/photobook/chapters.ts`.
-5. To hang photos on the pinboard, set `photo:` (an index into the chapter)
-   on a print slot in `src/data/board.ts`. A portrait slot takes a portrait
-   photo.
+1. Put the full-size originals in `photos-src/<trip-id>/` (not committed).
+2. From `personal-website/`, run `npm run photos -- <trip-id>`.
+   It makes each photo at up to three sizes (480, 800 and 1600 wide, WebP),
+   records its size and average color, and writes the trip file. Location and
+   camera data are never copied. Re-running is safe: it only encodes new photos
+   and keeps your captions.
+3. Open `src/data/trips/<trip-id>.json` and fill in `title`, `when` (the text
+   people see, such as "May 2027") and `date` (`2027-05`, used to sort trips
+   newest first). Write a `caption` and `alt` for each photo. Alt text is a
+   short description for people who can't see it.
+4. The order of `photos` is the order in the grid. The first photo is the
+   cover. Reorder lines by hand to change that.
+5. `npm run check:assets` shows sizes against the budget. It also runs before
+   every `npm run export:root`.
 
-Rebuilding only the thumbnails from the existing web versions:
-`npm run photos -- <chapter-id> --thumbs`.
+`npm run photos -- <trip-id> --force` re-encodes everything for a trip.
+
+## How loading stays light
+
+- The homepage receives only each trip's title, count and cover photo.
+  It loads the 480px size of those (about 30 KB each).
+- A trip's full photo list is a separate chunk that loads when the trip opens.
+- The photo book shows six frames a page; frames load lazily, each with a
+  color placeholder reserved, so nothing jumps. The full-screen size loads only when
+  a photo is opened, and only its neighbors are preloaded.
+
+## Budgets and when to move off git
+
+`scripts/check-assets.mjs` holds the numbers. Photos live in git, so every
+photo stays in the repo's history. At about 20 MB for one trip, or 120 MB in
+total, it warns; at 200 MB in total it fails. When that happens, move the image
+files to storage with a CDN (Cloudflare R2 or Vercel Blob) and point
+`photoUrl()` in `src/lib/trips.ts` at it. The trip files stay in git.
