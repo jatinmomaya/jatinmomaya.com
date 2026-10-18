@@ -8,16 +8,26 @@
   --ink: #2a2118;
   --mute: #5c5039;
   --acc: var(--ribbon, #a33a2e);
+  --page-a: #ebe3d1;
+  --page-b: #e2d8c3;
+  --text: #4a3e2f;
+  --text-2: #3d3326;
+  --rule: rgba(0, 0, 0, 0.12);
+  --lab-ink: #4a3a22;
+  --label: #3d3326;
+  --floor-end: #52391f;
+  --link: var(--ribbon, #a33a2e);
+  color-scheme: light;
   min-height: 100vh;
   min-height: 100dvh;
-  background: linear-gradient(#ebe3d1, #e2d8c3);
+  background: linear-gradient(var(--page-a), var(--page-b));
   color: var(--ink);
   font-family: var(--font-serif);
 }
 
 .hero { max-width: 940px; margin: 0 auto; padding: 64px 28px 28px; }
 .hero h1 { margin: 0; font-weight: 600; font-size: clamp(44px, 7vw, 84px); line-height: 1; letter-spacing: -0.02em; }
-.hero p { margin: 14px 0 0; max-width: 46ch; font-size: 20px; color: #4a3e2f; }
+.hero p { margin: 14px 0 0; max-width: 46ch; font-size: 20px; color: var(--text); }
 .hero small { display: block; margin-top: 18px; font: 12px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--mute); }
 
 .unit {
@@ -30,7 +40,7 @@
   box-shadow: 0 30px 40px -20px rgba(60, 40, 20, 0.5);
 }
 
-.lab { display: flex; gap: 14px; align-items: baseline; padding: 10px 26px 0; font: 400 11px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: #4a3a22; background: var(--back); }
+.lab { display: flex; gap: 14px; align-items: baseline; padding: 10px 26px 0; font: 400 11px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--lab-ink); background: var(--back); }
 .lab span { opacity: 0.7; letter-spacing: 0.06em; text-transform: none; }
 
 .row {
@@ -89,7 +99,7 @@
 .obj:hover, .obj[aria-expanded='true'] { transform: translateY(-8px); }
 .obj svg { display: block; overflow: visible; filter: drop-shadow(-3px 3px 3px rgba(0, 0, 0, 0.3)); }
 .obj { padding-bottom: 22px; }
-.tag { position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%); font: 11px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: #3d3326; white-space: nowrap; }
+.tag { position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%); font: 11px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--label); white-space: nowrap; }
 .book:focus-visible, .obj:focus-visible, .trip:focus-visible { outline: 3px solid var(--acc); outline-offset: 4px; border-radius: 3px; }
 
 .bounce svg { animation: bounce 1.15s linear; }
@@ -103,14 +113,14 @@
   100% { transform: translateY(0); }
 }
 
-.floor { height: 28px; max-width: 940px; margin: 0 auto; background: linear-gradient(var(--woodd), #52391f); border-radius: 0 0 6px 6px; }
+.floor { height: 28px; max-width: 940px; margin: 0 auto; background: linear-gradient(var(--woodd), var(--floor-end)); border-radius: 0 0 6px 6px; }
 
 .drawer { max-width: 940px; min-height: 260px; margin: 34px auto 0; padding: 0 28px 80px; outline: none; }
 .in { padding-top: 22px; border-top: 2px solid var(--ink); animation: rise 0.22s ease-out; }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
 .drawer h2 { margin: 0 0 6px; font-weight: 600; font-size: clamp(28px, 4vw, 42px); line-height: 1.1; letter-spacing: -0.01em; }
 .sub { margin-bottom: 16px; font: 12px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--mute); }
-.drawer p { max-width: 60ch; margin: 0 0 12px; font-size: 19px; line-height: 1.55; color: #3d3326; }
+.drawer p { max-width: 60ch; margin: 0 0 12px; font-size: 19px; line-height: 1.55; color: var(--text-2); }
 .empty { color: var(--mute) !important; font-style: italic; }
 .bk { display: flex; gap: 26px; align-items: flex-start; }
 .cover { box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3); border-radius: 2px; }
@@ -122,13 +132,13 @@
 .trip img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25); }
 .trip span { display: block; margin-top: 8px; font: 12px/1.4 var(--font-mono); color: var(--mute); }
 .trip b { display: block; font: 600 18px var(--font-serif); color: var(--ink); }
-.more, .links a { color: var(--acc); font-weight: 600; text-decoration: none; border-bottom: 1.5px solid currentColor; }
+.more, .links a { color: var(--link); font-weight: 600; text-decoration: none; border-bottom: 1.5px solid currentColor; }
 .links { display: flex; flex-wrap: wrap; gap: 8px 22px; }
 .posts { margin: 8px 0 0; padding: 0; list-style: none; font-size: 20px; }
-.posts li { padding: 6px 0; border-bottom: 1px solid rgba(0, 0, 0, 0.12); }
+.posts li { padding: 6px 0; border-bottom: 1px solid var(--rule); }
 .posts em { font: 11px var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
 .jobs { margin: 6px 0 14px; padding: 0; list-style: none; max-width: 60ch; }
-.jobs li { padding: 10px 0; border-bottom: 1px solid rgba(0, 0, 0, 0.12); font-size: 19px; }
+.jobs li { padding: 10px 0; border-bottom: 1px solid var(--rule); font-size: 19px; }
 .jobs li > span { display: block; font: 12px var(--font-mono); color: var(--mute); }
 .jobs p { margin: 6px 0 0; font-size: 17px; }
 
@@ -151,4 +161,32 @@
   .hero h1 { font-size: 40px; }
   .hero p { margin-top: 6px; font-size: 17px; }
   .hero small { display: none; }
+}
+
+/* Night: the same room with the lamp low. Follows the device setting. */
+@media (prefers-color-scheme: dark) {
+  .page {
+    --wood: #5a4128;
+    --woodd: #3f2d1b;
+    --back: #2b2218;
+    --ink: #ece1c9;
+    --mute: #b3a587;
+    --page-a: #1b1712;
+    --page-b: #15120e;
+    --text: #d3c7ac;
+    --text-2: #dcd1b8;
+    --rule: rgba(236, 225, 201, 0.16);
+    --lab-ink: #d3c5a4;
+    --label: #d9cdb2;
+    --floor-end: #2a1d10;
+    --link: #e58a7a;
+    --acc: #d2665a;
+    color-scheme: dark;
+  }
+  .unit { box-shadow: 0 30px 50px -20px rgba(0, 0, 0, 0.8); }
+  /* lamp light falls from above, then the shelf settles into shade */
+  .row { background: linear-gradient(to bottom, rgba(255, 214, 150, 0.1), rgba(0, 0, 0, 0) 45%); }
+  .obj svg { filter: drop-shadow(-3px 3px 3px rgba(0, 0, 0, 0.6)); }
+  .cam svg { filter: drop-shadow(0 0 1px rgba(236, 225, 201, 0.7)) drop-shadow(-3px 3px 3px rgba(0, 0, 0, 0.6)); }
+  .cover, .trip img { box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6); }
 }
