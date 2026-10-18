@@ -1,0 +1,66 @@
+/* The /trips page: every trip as a stack on one cork board. Scrolls; no artboard. */
+
+.page {
+  --u: 1px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 24px 14px 56px;
+  background: linear-gradient(to bottom, var(--wall-a) 0%, var(--wall-b) 70%, var(--wall-c) 100%);
+  color: var(--ink);
+  font-family: var(--font-serif);
+}
+.wrap { max-width: 1180px; margin: 0 auto; }
+.back {
+  display: inline-block;
+  margin: 0 0 18px;
+  padding: 9px 16px;
+  background: var(--paper-2);
+  color: var(--ink);
+  font: 12px var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transform: rotate(-1deg);
+  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.45));
+  transition: transform 0.18s cubic-bezier(0.3, 0.7, 0.3, 1);
+}
+.back:hover,
+.back:focus-visible { transform: translateY(-3px) rotate(-1deg); }
+.back:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+
+.board { position: relative; padding: 14px; border-radius: 6px; background: linear-gradient(135deg, var(--wood-a), var(--wood-b) 55%, var(--wood-c)); box-shadow: inset 0 2px 0 rgba(255, 214, 160, 0.2), 0 18px 26px rgba(0, 0, 0, 0.5); }
+.cork {
+  position: relative;
+  min-height: 420px;
+  padding: 34px 26px 56px;
+  border-radius: 2px;
+  background: var(--cork) url(/textures/cork.jpg) 0 0 / 320px;
+  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.45);
+}
+.cork::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(60% 90% at 50% 0%, rgba(255, 214, 150, 0.28), rgba(255, 214, 150, 0.05) 60%, rgba(0, 0, 0, 0.2) 100%); }
+.mast {
+  position: relative;
+  display: inline-block;
+  padding: 12px 24px;
+  background: var(--paper);
+  transform: rotate(-1deg);
+  filter: drop-shadow(0 8px 7px rgba(0, 0, 0, 0.5));
+  z-index: 1;
+}
+.mast h1 { margin: 0; font: 400 max(30px, 40px) / 1 var(--font-serif); }
+.mast p { margin: 6px 0 0; font: 11px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); }
+
+.grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(236px, 1fr));
+  gap: 70px 44px;
+  padding-top: 56px;
+}
+.cell { width: 100%; max-width: 260px; margin: 0 auto; aspect-ratio: 236 / 300; }
+.empty { position: relative; z-index: 1; margin: 40px 0 0; font: italic 18px var(--font-serif); color: var(--ink-2); }
+
+@media (prefers-reduced-motion: reduce) {
+  .back { transition: none; }
+}

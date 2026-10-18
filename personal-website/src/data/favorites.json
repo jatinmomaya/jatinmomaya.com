@@ -1,0 +1,92 @@
+{
+ "shelf": "favorites",
+ "items": [
+  {
+   "id": "the-inheritance-cycle",
+   "title": "The Inheritance Cycle",
+   "count": 4,
+   "author": "Christopher Paolini",
+   "pages": 2912,
+   "books": [],
+   "goodreadsId": "10859323"
+  },
+  {
+   "id": "red-rising-saga",
+   "title": "Red Rising Saga",
+   "author": "Pierce Brown",
+   "pages": 3360,
+   "books": [
+    {
+     "title": "Red Rising",
+     "order": 1,
+     "goodreadsId": "15839976"
+    },
+    {
+     "title": "Golden Son",
+     "order": 2,
+     "goodreadsId": "18966819"
+    },
+    {
+     "title": "Morning Star",
+     "order": 3,
+     "goodreadsId": "18966806"
+    },
+    {
+     "title": "Iron Gold",
+     "order": 4,
+     "goodreadsId": "33257757"
+    },
+    {
+     "title": "Dark Age",
+     "order": 5,
+     "goodreadsId": "29226553"
+    },
+    {
+     "title": "Light Bringer",
+     "order": 6,
+     "goodreadsId": "29227774"
+    }
+   ]
+  },
+  {
+   "id": "the-socrates-express",
+   "title": "The Socrates Express",
+   "author": "Eric Weiner",
+   "pages": 352,
+   "books": [],
+   "goodreadsId": "52756428"
+  },
+  {
+   "id": "flowers-for-algernon",
+   "title": "Flowers for Algernon",
+   "author": "Daniel Keyes",
+   "pages": 311,
+   "books": [],
+   "goodreadsId": "18373"
+  },
+  {
+   "id": "dune",
+   "title": "Dune",
+   "author": "Frank Herbert",
+   "pages": 658,
+   "books": [],
+   "goodreadsId": "44767458"
+  },
+  {
+   "id": "siddharta",
+   "title": "Siddharta",
+   "author": "Hermann Hesse",
+   "pages": 152,
+   "books": [],
+   "goodreadsId": "42639871"
+  },
+  {
+   "id": "tomorrow-and-tomorrow-and-tomorrow",
+   "title": "Tomorrow, and Tomorrow, and Tomorrow",
+   "author": "Gabrielle Zevin",
+   "pages": 399,
+   "books": [],
+   "goodreadsId": "58784475"
+  }
+ ]
+}

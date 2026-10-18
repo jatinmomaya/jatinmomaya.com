@@ -4,6 +4,7 @@
 // the root _next/ and top-level files are committed build output. After
 // `npm run build`, this script does the export the same way every time:
 //
+//   0. check photo and cover sizes against their budgets (scripts/check-assets.mjs)
 //   1. wipe the repo-root _next/
 //   2. copy everything in out/ over the repo root (overwrite; files that only
 //      exist at the root, such as legacy pages, are left alone)
@@ -15,6 +16,10 @@
 //   node scripts/export-root.mjs --dry-run   change nothing; check out/ only
 import { cp, readdir, readFile, rm, stat } from 'node:fs/promises';
 import path from 'node:path';
+
+// Photos and covers must be within budget before anything is published. The
+// check exits the process with an error if they are not.
+await import('./check-assets.mjs');
 
 const dry = process.argv.includes('--dry-run');
 const out = path.resolve('out');
@@ -59,7 +64,9 @@ for (const file of [...pages, ...styles]) {
   for (const m of text.matchAll(refs)) {
     const ref = decodeURIComponent(m[1] || m[2] || m[3]);
     if (ref === '/' || ref.startsWith('//')) continue;
-    if (!(await exists(path.join(target, ref)))) missing.add(`${ref}   (in ${path.relative(target, file)})`);
+    // a page route like /trips is served from trips.html (or trips/index.html)
+    const found = (await exists(path.join(target, ref))) || (await exists(path.join(target, `${ref}.html`))) || (await exists(path.join(target, ref, 'index.html')));
+    if (!found) missing.add(`${ref}   (in ${path.relative(target, file)})`);
   }
 }
 

@@ -1,8 +1,8 @@
 import type { MouseEvent } from 'react';
 import { WORK } from '../data/about';
-import { SLOTS, type Print } from '../data/board';
+import { SLOTS } from '../data/board';
 import { SITE } from '../data/site';
-import Pinned, { type PinColor } from './Pinned';
+import Pinned from './Pinned';
 import styles from '../app/board.module.css';
 
 export function Masthead() {
@@ -13,40 +13,20 @@ export function Masthead() {
   );
 }
 
-const PIN_ORDER: PinColor[] = ['red', 'blue', 'green', 'brass', 'red', 'blue', 'green'];
-
-interface PhotoPrintProps {
-  print: Print;
-  position: number;
-  /** columns in the phone grid */
-  span?: 1 | 2;
-  onOpen: (e: MouseEvent<HTMLElement>, index: number) => void;
-}
-
-/** A photograph pinned up. Opens the photobook. The first print carries the section label. */
-export function PhotoPrint({ print, position, span, onOpen }: PhotoPrintProps) {
+/** A pinned note that opens the page with every trip. */
+export function AllTripsCard() {
   return (
     <Pinned
-      as="button"
-      slot={print.slot}
-      span={span}
-      className={styles.print}
-      pin={PIN_ORDER[position % PIN_ORDER.length]}
-      label={position === 0 ? { text: 'Photographs', dx: 18, dy: -36, rot: -2 } : undefined}
-      aria-label={`${print.caption}. Open the Mexico photobook.`}
-      onClick={(e) => onOpen(e, print.index)}
+      as="a"
+      slot={SLOTS.allTrips}
+      className={styles.allTrips}
+      pin="brass"
+      pinX="88%"
+      href="/trips"
+      aria-label="All trips"
     >
-      <span className={styles.printFrame}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={print.src}
-          alt=""
-          width={print.width}
-          height={print.height}
-          decoding="async"
-        />
-      </span>
-      <span className={styles.printCaption}>{print.caption}</span>
+      <strong>All trips</strong>
+      <span className={styles.mono}>every stack</span>
     </Pinned>
   );
 }

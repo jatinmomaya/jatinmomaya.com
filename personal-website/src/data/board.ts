@@ -6,8 +6,6 @@
  * Phones get a flowing layout instead (see studio.module.css); only the
  * order of the items and each item's `span` matter there.
  */
-import { MEXICO_PHOTOS } from '../components/photobook/mexico';
-import type { PhotobookPhoto } from '../components/photobook/types';
 
 export interface Slot {
   x: number;
@@ -26,6 +24,7 @@ export const SHELF = { x: 104, w: 1392, surfaceY: 836, rowH: 152 } as const;
 
 export const SLOTS = {
   masthead: { x: 112, y: 64, w: 420, h: 84, r: -1 },
+  allTrips: { x: 570, y: 70, w: 210, h: 76, r: 2 },
   about: { x: 1262, y: 70, w: 242, h: 132, r: 3 },
   linkedin: { x: 1266, y: 236, w: 238, h: 76, r: -2 },
   github: { x: 1266, y: 332, w: 238, h: 76, r: 2 },
@@ -33,55 +32,33 @@ export const SLOTS = {
   writing: { x: 930, y: 62, w: 300, h: 580, r: 1.5 },
 } satisfies Record<string, Slot>;
 
+/** The most trips the board shows as stacks; every trip is on the /trips page. */
+export const HOME_TRIPS = 4;
+
 /**
- * Where photo prints go, in display order, and which photo (by index into
- * the Mexico chapter) hangs in each. A portrait slot takes a portrait photo.
- * Three prints is the set when there is a Writing page; two more fill its
- * place when there isn't one.
+ * Where trip stacks go. The left of the board holds up to four stacks, spread
+ * across the room it has: one trip gets one big stack, four get four small
+ * ones. A new trip takes the next position on its own; nothing is placed by hand.
  */
-export interface PrintSlot extends Slot {
-  photo: number;
-}
-
-const PRINTS_BASE: PrintSlot[] = [
-  { x: 112, y: 196, w: 270, h: 340, r: -4, photo: 5 },
-  { x: 560, y: 70, w: 340, h: 258, r: 3, photo: 11 },
-  { x: 410, y: 352, w: 350, h: 262, r: 4, photo: 0 },
-];
-export const PRINTS_WITH_WRITING: PrintSlot[] = PRINTS_BASE;
-export const PRINTS_WITHOUT_WRITING: PrintSlot[] = [
-  ...PRINTS_BASE,
-  { x: 934, y: 70, w: 300, h: 204, r: 2, photo: 4 },
-  { x: 976, y: 318, w: 220, h: 282, r: -2.5, photo: 7 },
-];
-
-/** Pinboard prints use the small versions: public/photos/<chapter>/t/NN.jpg */
-export function thumbSrc(photo: PhotobookPhoto): string {
-  return photo.src.replace(/\/(\d+)\.jpg$/, '/t/$1.jpg');
-}
-
-export interface Print {
-  slot: Slot;
-  src: string;
-  caption: string;
-  alt: string;
-  /** index into the chapter, so a tap can open the book at this photo */
-  index: number;
-  width: number;
-  height: number;
-}
-
-export function buildPrints(hasWriting: boolean): Print[] {
-  return (hasWriting ? PRINTS_WITH_WRITING : PRINTS_WITHOUT_WRITING).map((slot) => {
-    const p = MEXICO_PHOTOS[slot.photo];
-    return {
-      slot,
-      src: thumbSrc(p),
-      caption: p.caption,
-      alt: p.alt,
-      index: slot.photo,
-      width: p.width,
-      height: p.height,
-    };
-  });
+export function stackSlots(n: number): Slot[] {
+  const count = Math.max(1, Math.min(HOME_TRIPS, n));
+  const layouts: Slot[][] = [
+    [{ x: 300, y: 205, w: 300, h: 380, r: -2 }],
+    [
+      { x: 215, y: 225, w: 240, h: 305, r: -3 },
+      { x: 545, y: 215, w: 240, h: 305, r: 2.5 },
+    ],
+    [
+      { x: 135, y: 235, w: 190, h: 242, r: -3 },
+      { x: 405, y: 222, w: 190, h: 242, r: 2 },
+      { x: 675, y: 240, w: 190, h: 242, r: -2 },
+    ],
+    [
+      { x: 114, y: 245, w: 148, h: 196, r: -3 },
+      { x: 322, y: 232, w: 148, h: 196, r: 2 },
+      { x: 530, y: 250, w: 148, h: 196, r: -2 },
+      { x: 738, y: 236, w: 148, h: 196, r: 3 },
+    ],
+  ];
+  return layouts[count - 1];
 }

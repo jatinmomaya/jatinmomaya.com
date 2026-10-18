@@ -6,9 +6,16 @@ import { playCloseAnimation, playOpenAnimation, prefersReducedMotion } from './a
  * close animation from the book's position, body scroll lock, Escape to
  * close, and a Tab trap. Focus returns to the opener in the caller.
  */
-export function useOverlayDialog(origin: { x: number; y: number } | null, onClose: () => void) {
+export function useOverlayDialog(
+  origin: { x: number; y: number } | null,
+  onClose: () => void,
+  /** set `active: false` while another layer (a full-screen viewer) is on top, so Escape and Tab go to it */
+  options: { active?: boolean } = {},
+) {
   const [closing, setClosing] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const activeRef = useRef(true);
+  activeRef.current = options.active ?? true;
 
   const requestClose = useCallback(() => {
     const sheet = dialogRef.current;
@@ -17,7 +24,16 @@ export function useOverlayDialog(origin: { x: number; y: number } | null, onClos
       return;
     }
     setClosing(true);
-    playCloseAnimation(sheet).then(onClose);
+    // Closing never waits on the animation alone: if it stalls (a background
+    // window pauses animations), the timer still closes the dialog.
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      onClose();
+    };
+    playCloseAnimation(sheet).then(finish);
+    window.setTimeout(finish, 450);
   }, [onClose]);
 
   useEffect(() => {
@@ -31,6 +47,7 @@ export function useOverlayDialog(origin: { x: number; y: number } | null, onClos
     document.body.style.overflow = 'hidden';
     dialogRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
+      if (!activeRef.current) return;
       if (e.key === 'Escape') {
         requestClose();
         return;

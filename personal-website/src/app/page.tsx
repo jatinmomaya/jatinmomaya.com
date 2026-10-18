@@ -1,27 +1,32 @@
-import Studio from '../components/Studio';
+import BookshelfHome, { type FavoriteItem } from '../components/BookshelfHome';
 import type { Post } from '../components/BoardItems';
 import booksData from '../data/books.json';
+import favoritesData from '../data/favorites.json';
 import writingData from '../data/writing.json';
-import { buildPrints } from '../data/board';
-import { SHELF_MAX, sortBooks, toShelfBook, type Book } from '../lib/books';
+import { getTripSummaries } from '../lib/trips.server';
+import type { Book } from '../lib/books';
 
 export const metadata = {
   title: 'Jatin Momaya',
   description: 'The personal site of Jatin Momaya.',
+  openGraph: {
+    title: 'Jatin Momaya',
+    description: 'The personal site of Jatin Momaya: what I am reading, my favorite books, and photographs from my trips.',
+    type: 'website' as const,
+  },
 };
 
 export default function Home() {
-  // Only the most recent books reach the client for the shelf; the full
-  // list loads on demand with the "All books" page.
-  const books = sortBooks(booksData.books as Book[]);
-  const shelfBooks = books.slice(0, SHELF_MAX).map(toShelfBook);
-  const posts = writingData.posts as Post[];
+  // A shelf of intent, not a full library: what I'm reading now, and the
+  // books on my Goodreads "favorites" shelf. The rest of the library stays
+  // in books.json for later.
+  const reading = (booksData.books as Book[]).filter((b) => b.status === 'reading');
   return (
-    <Studio
-      shelfBooks={shelfBooks}
-      totalBooks={books.length}
-      prints={buildPrints(posts.length > 0)}
-      posts={posts}
+    <BookshelfHome
+      reading={reading}
+      favorites={favoritesData.items as FavoriteItem[]}
+      trips={getTripSummaries()}
+      posts={writingData.posts as Post[]}
     />
   );
 }

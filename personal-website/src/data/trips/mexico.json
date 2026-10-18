@@ -1,0 +1,27 @@
+{
+  "id": "mexico",
+  "title": "Mexico",
+  "when": "September 2026",
+  "date": "2026-09",
+  "photos": [
+    {"id":"01","w":1170,"h":780,"taken":"2026-09-24","bg":"#4c5535","widths":[480,800,1170],"caption":"Grutas de Tolantongo, Hidalgo","alt":"Waterfall cascading down a mossy cliff, framed by jungle foliage"},
+    {"id":"02","w":1170,"h":1463,"taken":"2026-09-24","bg":"#727357","widths":[480,800,1170],"caption":"Grutas de Tolantongo","alt":"Orange flower in sharp focus with a blurred waterfall behind it"},
+    {"id":"03","w":1170,"h":623,"taken":"2026-09-24","bg":"#3d3c2e","widths":[480,800,1170],"caption":"Grutas de Tolantongo","alt":"Wide waterfall spilling over dark moss-covered rock"},
+    {"id":"04","w":1170,"h":786,"taken":"2026-09-24","bg":"#606155","widths":[480,800,1170],"caption":"Tolantongo","alt":"Close view of water streaming over bright green mossy rock"},
+    {"id":"05","w":1170,"h":780,"taken":"2026-09-24","bg":"#6e7361","widths":[480,800,1170],"caption":"Grutas de Tolantongo","alt":"Green mountain valley with a river winding below"},
+    {"id":"06","w":1170,"h":1463,"taken":"2026-09-24","bg":"#6a7265","widths":[480,800,1170],"caption":"Pozas de Tolantongo","alt":"Turquoise thermal pools terraced into a mountainside with swimmers"},
+    {"id":"07","w":1170,"h":1417,"taken":"2026-09-25","bg":"#7c8089","widths":[480,800,1170],"caption":"Monumento a la Revolución, Mexico City","alt":"The domed Monumento a la Revolución against a blue sky"},
+    {"id":"08","w":1170,"h":1463,"taken":"2026-09-25","bg":"#686765","widths":[480,800,1170],"caption":"Biblioteca Vasconcelos, Mexico City","alt":"Looking down the suspended bookshelf stacks of the Vasconcelos library"},
+    {"id":"09","w":1170,"h":1776,"taken":"2026-09-25","bg":"#727174","widths":[480,800,1170],"caption":"Zócalo, Mexico City","alt":"The Mexican flag flying before the Metropolitan Cathedral"},
+    {"id":"10","w":1170,"h":1812,"taken":"2026-09-26","bg":"#4a3436","widths":[480,800,1170],"caption":"Teotihuacán","alt":"A hot air balloon envelope inflating with a burst of burner flame"},
+    {"id":"11","w":1170,"h":837,"taken":"2026-09-26","bg":"#6a5857","widths":[480,800,1170],"caption":"Teotihuacán","alt":"Ground crew holding a balloon envelope as the burner fires"},
+    {"id":"12","w":1170,"h":780,"taken":"2026-09-26","bg":"#75766f","widths":[480,800,1170],"caption":"Teotihuacán","alt":"Dozens of colorful balloons aloft under a cloudy dawn sky"},
+    {"id":"13","w":1170,"h":1170,"taken":"2026-09-26","bg":"#928d88","widths":[480,800,1170],"caption":"Teotihuacán","alt":"A single checkered balloon floating against soft clouds"},
+    {"id":"14","w":1170,"h":780,"taken":"2026-09-26","bg":"#807e6d","widths":[480,800,1170],"caption":"Teotihuacán","alt":"Balloons drifting over the waking town at sunrise"},
+    {"id":"15","w":1170,"h":780,"taken":"2026-09-26","bg":"#6d624d","widths":[480,800,1170],"caption":"Pyramid of the Sun, Teotihuacán","alt":"A balloon floating beside the Pyramid of the Sun"},
+    {"id":"16","w":1170,"h":785,"taken":"2026-09-26","bg":"#75786a","widths":[480,800,1170],"caption":"Pyramid of the Moon, Teotihuacán","alt":"Aerial view of a balloon beside the Pyramid of the Moon"},
+    {"id":"17","w":1170,"h":714,"taken":"2026-09-26","bg":"#898b78","widths":[480,800,1170],"caption":"Avenue of the Dead, Teotihuacán","alt":"The ancient avenue stretching between pyramids, seen from above"},
+    {"id":"18","w":1170,"h":558,"taken":"2026-09-26","bg":"#6d788a","widths":[480,800,1170],"caption":"Pyramid of the Moon, Teotihuacán","alt":"Crowds climbing the steps of the Pyramid of the Moon"},
+    {"id":"19","w":1170,"h":634,"taken":"2026-09-26","bg":"#636870","widths":[480,800,1170],"caption":"Teotihuacán","alt":"Weathered stone detail of the pyramid masonry"}
+  ]
+}
