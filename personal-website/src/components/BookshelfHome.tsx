@@ -140,8 +140,8 @@ export default function BookshelfHome({ reading, favorites, trips, posts }: Book
     <div className={styles.page}>
       <header className={styles.hero}>
         <h1>Hey, I&rsquo;m Jatin.</h1>
-        <p>I&rsquo;m an associate consultant at ZS. This is my shelf. Pick something off it.</p>
-        <small>Books are from my Goodreads &middot; photos are mine</small>
+        <p><span>Consultant by profession.</span> <span>Curious about pretty much everything else.</span></p>
+        <small>Associate consultant at ZS &middot; all photographs are mine</small>
       </header>
 
       <main className={styles.main}>
@@ -233,7 +233,7 @@ export default function BookshelfHome({ reading, favorites, trips, posts }: Book
             </li>
           </ul>
 
-          <div className={styles.lab}><b>Favorites</b><span>my Goodreads &ldquo;favorites&rdquo; shelf</span></div>
+          <div className={styles.lab}><b>Favorites</b></div>
           <ul className={styles.row} aria-label="Favorites">
             {favorites.map((f) => {
               const b: Book = { id: f.id, title: f.title, author: f.author, status: 'read', pages: f.pages };

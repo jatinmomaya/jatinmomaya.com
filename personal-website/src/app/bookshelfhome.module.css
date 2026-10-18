@@ -32,7 +32,8 @@
 
 .hero { width: 100%; max-width: 940px; margin: 0 auto; padding: clamp(14px, 4vh, 44px) 28px clamp(8px, 2vh, 20px); }
 .hero h1 { margin: 0; font-weight: 600; font-size: clamp(30px, 6.5vh, 64px); line-height: 1; letter-spacing: -0.02em; }
-.hero p { margin: clamp(4px, 1vh, 10px) 0 0; max-width: 46ch; font-size: clamp(15px, 2.4vh, 20px); line-height: 1.35; color: var(--text); }
+.hero p { margin: clamp(4px, 1vh, 10px) 0 0; font-size: clamp(15px, 2.4vh, 20px); line-height: 1.35; color: var(--text); }
+.hero p span { white-space: nowrap; }
 .hero small { display: block; margin-top: clamp(6px, 1.4vh, 14px); font: 11px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--mute); }
 
 .main { display: flex; flex-direction: column; min-height: 0; width: 100%; max-width: 940px; margin: 0 auto; padding: 0 8px clamp(8px, 2vh, 20px); }
@@ -159,6 +160,9 @@
 
 @media (max-width: 640px) {
   .hero { padding-left: 16px; padding-right: 16px; }
+  /* each sentence on its own line, never broken in the middle */
+  .hero p { max-width: none; font-size: min(clamp(15px, 2.4vh, 20px), calc((100vw - 32px) / 22.5)); }
+  .hero p span { display: block; }
   .unit { border-width: 8px; }
   .row { padding: 16px 12px 0; gap: 4px; }
   .lab { padding: 8px 12px 0; }

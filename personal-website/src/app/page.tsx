@@ -16,15 +16,26 @@ export const metadata = {
   },
 };
 
+function withoutSyncId<T extends object>(item: T): T {
+  return Object.fromEntries(Object.entries(item).filter(([k]) => k !== 'goodreadsId')) as T;
+}
+
 export default function Home() {
   // A shelf of intent, not a full library: what I'm reading now, and the
   // books on my Goodreads "favorites" shelf. The rest of the library stays
   // in books.json for later.
-  const reading = (booksData.books as Book[]).filter((b) => b.status === 'reading');
+  // Sync ids stay in the data files; the page only gets what it shows.
+  const reading = (booksData.books as Book[])
+    .filter((b) => b.status === 'reading')
+    .map((b) => withoutSyncId(b));
+  const favorites = (favoritesData.items as FavoriteItem[]).map((f) => ({
+    ...withoutSyncId(f),
+    books: f.books.map((x) => ({ title: x.title, order: x.order })),
+  }));
   return (
     <BookshelfHome
       reading={reading}
-      favorites={favoritesData.items as FavoriteItem[]}
+      favorites={favorites}
       trips={getTripSummaries()}
       posts={writingData.posts as Post[]}
     />
