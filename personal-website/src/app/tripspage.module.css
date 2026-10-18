@@ -1,66 +1,32 @@
-/* The /trips page: every trip as a stack on one cork board. Scrolls; no artboard. */
+/* The /trips page: every trip as an album, on the same paper as the shelf. Scrolls. */
 
 .page {
-  --u: 1px;
+  --page-a: #ebe3d1;
+  --page-b: #e2d8c3;
+  --ink: #2a2118;
+  --mute: #5c5039;
+  --acc: var(--ribbon, #a33a2e);
   min-height: 100vh;
   min-height: 100dvh;
-  padding: 24px 14px 56px;
-  background: linear-gradient(to bottom, var(--wall-a) 0%, var(--wall-b) 70%, var(--wall-c) 100%);
+  padding: 24px 16px 56px;
+  background: linear-gradient(var(--page-a), var(--page-b));
   color: var(--ink);
   font-family: var(--font-serif);
 }
-.wrap { max-width: 1180px; margin: 0 auto; }
-.back {
-  display: inline-block;
-  margin: 0 0 18px;
-  padding: 9px 16px;
-  background: var(--paper-2);
-  color: var(--ink);
-  font: 12px var(--font-mono);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  text-decoration: none;
-  transform: rotate(-1deg);
-  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.45));
-  transition: transform 0.18s cubic-bezier(0.3, 0.7, 0.3, 1);
+@media (prefers-color-scheme: dark) {
+  .page { --page-a: #1b1712; --page-b: #15120e; --ink: #ece1c9; --mute: #b3a587; --acc: #d2665a; }
 }
-.back:hover,
-.back:focus-visible { transform: translateY(-3px) rotate(-1deg); }
-.back:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
-
-.board { position: relative; padding: 14px; border-radius: 6px; background: linear-gradient(135deg, var(--wood-a), var(--wood-b) 55%, var(--wood-c)); box-shadow: inset 0 2px 0 rgba(255, 214, 160, 0.2), 0 18px 26px rgba(0, 0, 0, 0.5); }
-.cork {
-  position: relative;
-  min-height: 420px;
-  padding: 34px 26px 56px;
-  border-radius: 2px;
-  background: var(--cork) url(/textures/cork.jpg) 0 0 / 320px;
-  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.45);
-}
-.cork::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(60% 90% at 50% 0%, rgba(255, 214, 150, 0.28), rgba(255, 214, 150, 0.05) 60%, rgba(0, 0, 0, 0.2) 100%); }
-.mast {
-  position: relative;
-  display: inline-block;
-  padding: 12px 24px;
-  background: var(--paper);
-  transform: rotate(-1deg);
-  filter: drop-shadow(0 8px 7px rgba(0, 0, 0, 0.5));
-  z-index: 1;
-}
-.mast h1 { margin: 0; font: 400 max(30px, 40px) / 1 var(--font-serif); }
-.mast p { margin: 6px 0 0; font: 11px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); }
-
-.grid {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(236px, 1fr));
-  gap: 70px 44px;
-  padding-top: 56px;
-}
-.cell { width: 100%; max-width: 260px; margin: 0 auto; aspect-ratio: 236 / 300; }
-.empty { position: relative; z-index: 1; margin: 40px 0 0; font: italic 18px var(--font-serif); color: var(--ink-2); }
-
-@media (prefers-reduced-motion: reduce) {
-  .back { transition: none; }
-}
+.wrap { max-width: 940px; margin: 0 auto; }
+.back { display: inline-block; margin: 0 0 22px; font: 12px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); text-decoration: none; border-bottom: 1.5px solid currentColor; }
+.back:hover { color: var(--ink); }
+.back:focus-visible, .album:focus-visible { outline: 3px solid var(--acc); outline-offset: 4px; }
+.title { margin: 0; font-weight: 600; font-size: clamp(34px, 6vw, 56px); line-height: 1; letter-spacing: -0.02em; }
+.meta { margin: 10px 0 28px; font: 12px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 28px; margin: 0; padding: 0; list-style: none; }
+.album { display: block; width: 100%; padding: 0; border: 0; background: none; text-align: left; cursor: pointer; color: inherit; }
+.album img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border: 8px solid #f3ecdc; box-shadow: 0 10px 22px rgba(0, 0, 0, 0.3); transition: transform 0.18s cubic-bezier(0.3, 0.7, 0.3, 1); }
+.album:hover img { transform: translateY(-4px); }
+.album span { display: block; margin-top: 12px; font: 12px/1.4 var(--font-mono); color: var(--mute); }
+.album b { display: block; font: 600 20px var(--font-serif); color: var(--ink); }
+.empty { color: var(--mute); font-style: italic; }
+@media (prefers-reduced-motion: reduce) { .album img { transition: none; } }

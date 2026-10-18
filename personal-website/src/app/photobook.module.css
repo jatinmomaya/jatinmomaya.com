@@ -1,0 +1,134 @@
+/*
+ * A trip as a photo book: a cloth cover, cream pages, contact-sheet frames.
+ * Two pages side by side on a wide screen, one on a phone. The cover sits
+ * on the dimmed shelf page, so it follows the same light / dark setting.
+ */
+
+.book {
+  --cover-a: #6a4a2c;
+  --cover-b: #4a3019;
+  --page: #f3ecdc;
+  --page-edge: #d9cfb6;
+  --ink: #2a2118;
+  --mute: #5f523c;
+  --film: #17140f;
+  --rule: rgba(60, 40, 20, 0.22);
+  --acc: #a33a2e;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(1120px, 100%);
+  height: min(780px, calc(100vh - 48px));
+  height: min(780px, calc(100dvh - 48px));
+  padding: 14px 14px 0;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--cover-a), var(--cover-b));
+  box-shadow: 0 32px 70px rgba(0, 0, 0, 0.55), inset 0 0 0 2px rgba(255, 230, 190, 0.08);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  outline: none;
+}
+@media (prefers-color-scheme: dark) {
+  .book {
+    --cover-a: #3a2819;
+    --cover-b: #261a0f;
+    --page: #2b2318;
+    --page-edge: #1d170f;
+    --ink: #ece1c9;
+    --mute: #b3a587;
+    --rule: rgba(236, 225, 201, 0.2);
+    --acc: #d2665a;
+  }
+}
+
+.cover { flex: 1; min-height: 0; display: flex; }
+/* the stack of paper under the top page */
+.spread {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  border-radius: 3px;
+  box-shadow: 0 1px 0 var(--page-edge), 0 3px 0 var(--page-edge), 0 5px 0 rgba(0, 0, 0, 0.25);
+  touch-action: pan-y;
+}
+
+.page {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 26px 28px 14px;
+  background: var(--page);
+}
+.left { background: linear-gradient(to left, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0) 9%), var(--page); border-radius: 3px 0 0 3px; }
+.right { background: linear-gradient(to right, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0) 9%), var(--page); border-radius: 0 3px 3px 0; }
+
+.head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 56px 14px 0; min-height: 34px; }
+.right .head { justify-content: flex-end; }
+.title { margin: 0; font: 600 clamp(22px, 2.6vw, 30px) / 1.1 var(--font-serif); letter-spacing: -0.01em; }
+.meta { font: 11px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); white-space: nowrap; }
+
+/* the contact sheet: six frames to a page, 2 across and 3 down, sized to fit the page */
+.frames { flex: 1; min-height: 0; container-type: size; overflow: hidden; }
+.sheet {
+  --gap: 10px;
+  --label: 22px;
+  /* a frame is as wide as the page allows or as the page height allows, whichever is smaller */
+  --cw: min(calc((100cqw - var(--gap)) / 2), calc(((100cqh - 2 * var(--gap)) / 3 - var(--label)) * 1.5));
+  display: grid;
+  grid-template-columns: repeat(2, var(--cw));
+  justify-content: center;
+  align-content: start;
+  gap: var(--gap);
+}
+.frame { display: block; width: var(--cw); padding: 0; border: 0; background: none; text-align: left; cursor: pointer; color: inherit; }
+.film {
+  display: block;
+  aspect-ratio: 3 / 2;
+  background: var(--film);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  transition: transform 0.18s cubic-bezier(0.3, 0.7, 0.3, 1), box-shadow 0.18s;
+}
+.film img { display: block; width: 100%; height: 100%; object-fit: contain; background: var(--bg, #17140f); }
+.frame:hover .film { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35); }
+.no { display: flex; justify-content: space-between; gap: 6px; height: 22px; padding-top: 4px; font: 10px var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+.no b { font-weight: 500; color: var(--acc); }
+.no i { font-style: normal; }
+.frame:focus-visible { outline: 3px solid var(--acc); outline-offset: 3px; }
+
+.folio { padding-top: 8px; text-align: center; font: 11px var(--font-mono); letter-spacing: 0.16em; color: var(--mute); }
+.left .folio { text-align: left; }
+.right .folio { text-align: right; }
+
+.turn { display: flex; align-items: center; justify-content: center; gap: 18px; height: 52px; font: 11px var(--font-mono); letter-spacing: 0.16em; text-transform: uppercase; color: #e8d9b8; }
+.turn button { width: 44px; height: 44px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.1); color: #f3ead6; font: 28px / 1 var(--font-serif); cursor: pointer; }
+.turn button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.2); }
+.turn button:disabled { opacity: 0.25; cursor: default; }
+.turn button:focus-visible, .close:focus-visible { outline: 3px solid #e7b95a; outline-offset: 2px; }
+
+.close { position: absolute; top: 22px; right: 22px; z-index: 3; width: 40px; height: 40px; border: 0; border-radius: 50%; background: rgba(30, 22, 12, 0.55); color: #f3ead6; font: 22px / 1 var(--font-serif); cursor: pointer; }
+
+@media not ((min-width: 760px) and (min-aspect-ratio: 1/1)) {
+  .book { padding: 8px 8px 0; }
+  .page { padding: 18px 14px 10px; border-radius: 3px; }
+  .head { margin-right: 48px; flex-wrap: wrap; row-gap: 2px; }
+  .close { top: 14px; right: 14px; }
+}
+/* a short screen (a phone on its side): tighter pages so a row or two of frames still fits */
+@media (max-height: 520px) {
+  .book { padding: 6px 6px 0; }
+  .page { padding: 10px 14px 6px; }
+  .head { min-height: 22px; margin-bottom: 6px; }
+  .title { font-size: 20px; }
+  .folio { display: none; }
+  /* too short for four rows: the page scrolls instead of shrinking the frames to stamps */
+  .frames { container-type: inline-size; overflow-y: auto; }
+  .sheet { --cw: calc((100cqw - var(--gap)) / 2); }
+  .turn { height: 44px; }
+  .turn button { width: 36px; height: 36px; font-size: 24px; }
+  .close { top: 10px; right: 10px; width: 34px; height: 34px; font-size: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .film { transition: none; }
+}
