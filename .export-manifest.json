@@ -1,6 +1,8 @@
 {
  "files": [
   "404.html",
+  "_next/static/8K0_30szit91v2W4b_mRA/_buildManifest.js",
+  "_next/static/8K0_30szit91v2W4b_mRA/_ssgManifest.js",
   "_next/static/chunks/139.7a5a8e93a21948c1.js",
   "_next/static/chunks/255-2005b055456c798b.js",
   "_next/static/chunks/355.da32226dc121e41f.js",
@@ -23,13 +25,11 @@
   "_next/static/chunks/pages/_error-013f4188946cdd04.js",
   "_next/static/chunks/polyfills-42372ed130431b0a.js",
   "_next/static/chunks/webpack-61c4d56ded9e095f.js",
-  "_next/static/css/1859085961fd03f1.css",
+  "_next/static/css/2973060652d7011a.css",
   "_next/static/css/2b02e38810e73e99.css",
   "_next/static/css/517592ce5156f5ce.css",
   "_next/static/css/9ca718facfd2acd0.css",
   "_next/static/css/c9d637cad03b3244.css",
-  "_next/static/mNek2K6yTlSRj3_iPdGkt/_buildManifest.js",
-  "_next/static/mNek2K6yTlSRj3_iPdGkt/_ssgManifest.js",
   "books/covers/carl-s-doomsday-scenario.webp",
   "books/covers/dungeon-crawler-carl.webp",
   "books/covers/fourth-wing.webp",
