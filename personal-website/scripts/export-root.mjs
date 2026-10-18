@@ -125,7 +125,18 @@ async function walk(dir, ext, acc = []) {
 }
 
 const missing = new Set();
-const refs = /(?:src|href)="(\/[^"#?]+)|url\((\/[^)"'#?]+)|"(\/_next\/[^"?]+)/g;
+// A path ends at a quote, a query, a fragment or a backslash (pages hold escaped quotes in their data).
+const refs = /(?:src|href)="(\/[^"#?\\]+)|url\((\/[^)"'#?\\]+)|"(\/_next\/[^"?\\]+)/g;
+
+/** True when `rel` exists under `base` with exactly these letter cases, as it must on Linux (Vercel, GitHub). */
+async function existsExact(base, rel) {
+  let dir = base;
+  for (const part of rel.split('/').filter(Boolean)) {
+    if (!(await readdir(dir).catch(() => [])).includes(part)) return false;
+    dir = path.join(dir, part);
+  }
+  return true;
+}
 const pages = (await readdir(target)).filter((f) => f.endsWith('.html')).map((f) => path.join(target, f));
 const styles = await walk(path.join(target, '_next', 'static', 'css'), ['.css']);
 for (const file of [...pages, ...styles]) {
@@ -134,7 +145,7 @@ for (const file of [...pages, ...styles]) {
     const ref = decodeURIComponent(m[1] || m[2] || m[3]);
     if (ref === '/' || ref.startsWith('//')) continue;
     // a page route like /trips is served from trips.html (or trips/index.html)
-    const found = (await exists(path.join(target, ref))) || (await exists(path.join(target, `${ref}.html`))) || (await exists(path.join(target, ref, 'index.html')));
+    const found = (await existsExact(target, ref)) || (await existsExact(target, `${ref}.html`)) || (await existsExact(target, `${ref}/index.html`));
     if (!found) missing.add(`${ref}   (in ${path.relative(target, file)})`);
   }
 }
