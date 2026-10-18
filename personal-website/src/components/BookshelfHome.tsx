@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { toShelfBook, type Book } from '../lib/books';
 import { photoUrl, srcSet, type TripSummary } from '../lib/trips';
@@ -37,29 +37,60 @@ const S = 1.5;
  * The homepage: a short hello and one bookcase. The top shelf is what I'm
  * reading now, the middle holds a few objects that open the rest of the site
  * (photographs, tennis, writing, work), and the bottom shelf is my favorites.
- * Opening anything fills the panel under the case; nothing leaves the page
- * except the trips, which open their own grid.
+ * The whole thing fits one screen with no scrolling. Opening anything shows
+ * a panel over the case (a sheet from the bottom on phones); trips open
+ * their own grid on top of it.
  */
 export default function BookshelfHome({ reading, favorites, trips, posts }: BookshelfHomeProps) {
   const [open, setOpen] = useState<Open | null>(null);
-  const panel = useRef<HTMLElement>(null);
+  const dialog = useRef<HTMLDivElement>(null);
+  const opener = useRef<HTMLElement | null>(null);
   const { openTrip, host } = useTripHost();
 
   const show = useCallback((key: string, body: ReactNode) => {
-    setOpen((cur) => (cur?.key === key ? null : { key, body }));
-    // On a phone the panel is below the fold, so bring it into view.
+    opener.current = document.activeElement as HTMLElement | null;
+    setOpen({ key, body });
+  }, []);
+
+  // Closing is a plain state change (never waits on an animation), and focus
+  // goes back to what opened the panel.
+  const close = useCallback(() => {
+    setOpen(null);
+    const el = opener.current;
     window.setTimeout(() => {
-      if (window.matchMedia('(max-width: 900px)').matches) {
-        panel.current?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
-      }
+      if (el?.isConnected) el.focus();
     }, 0);
   }, []);
 
+  useEffect(() => {
+    if (!open) return;
+    dialog.current?.querySelector<HTMLElement>('[data-close]')?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      // the trip viewer sits above this panel and handles its own keys
+      if ([...document.querySelectorAll('[role="dialog"]')].some((d) => d !== dialog.current)) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        close();
+      } else if (e.key === 'Tab' && dialog.current) {
+        const f = [...dialog.current.querySelectorAll<HTMLElement>('button, a[href]')].filter((x) => !x.hasAttribute('disabled'));
+        if (!f.length) return;
+        const first = f[0];
+        const last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        else if (!dialog.current.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open, close]);
+
   const spine = (b: Book, extra?: { series?: number }) => {
     const s = toShelfBook(b);
-    // Heights stay inside the shelf (168 to 203px) so no spine is ever cut off.
-    const height = 168 + ((s.height - 118) / 34) * 35;
-    return { width: Math.round(s.width * S * 0.62), height: Math.round(height), color: s.color, ink: s.ink, series: extra?.series };
+    // Height is a share of the shelf's own height (76 to 92%), so the shelves
+    // can flex to the screen and no spine is ever taller than its shelf.
+    const height = 76 + ((s.height - 118) / 34) * 16;
+    return { width: Math.max(27, Math.round(s.width * S * 0.62)), height: Math.round(height * 10) / 10, color: s.color, ink: s.ink, series: extra?.series };
   };
 
   const bookButton = (b: Book, key: string, body: ReactNode, opts: { ribbon?: boolean; count?: number } = {}) => {
@@ -69,8 +100,8 @@ export default function BookshelfHome({ reading, favorites, trips, posts }: Book
         <button
           type="button"
           className={`${styles.book}${opts.count ? ` ${styles.series}` : ''}`}
-          style={{ width: s.width, height: s.height, '--c': s.color, '--ink': s.ink } as React.CSSProperties}
-          aria-expanded={open?.key === key}
+          style={{ width: s.width, height: `calc(${s.height} * 1cqh)`, '--c': s.color, '--ink': s.ink } as React.CSSProperties}
+          aria-haspopup="dialog"
           aria-label={`${b.title} by ${b.author}${opts.ribbon ? ', reading now' : ''}${opts.count ? `, ${opts.count} books` : ''}`}
           onClick={() => show(key, body)}
         >
@@ -113,7 +144,7 @@ export default function BookshelfHome({ reading, favorites, trips, posts }: Book
         <small>Books are from my Goodreads &middot; photos are mine</small>
       </header>
 
-      <main>
+      <main className={styles.main}>
         <section className={styles.unit} aria-label="Shelf">
           <div className={styles.lab}><b>Reading now</b></div>
           <ul className={styles.row} aria-label="Reading now">
@@ -122,7 +153,7 @@ export default function BookshelfHome({ reading, favorites, trips, posts }: Book
 
           <ul className={`${styles.row} ${styles.objects}`} aria-label="Things on the shelf">
             <li>
-              <button type="button" className={`${styles.obj} ${styles.cam}`} aria-expanded={open?.key === 'cam'} aria-label="Photographs"
+              <button type="button" className={`${styles.obj} ${styles.cam}`} aria-haspopup="dialog" aria-label="Photographs"
                 onClick={() => show('cam', (
                   <>
                     <div className={styles.sub}>Photographs</div>
@@ -146,18 +177,18 @@ export default function BookshelfHome({ reading, favorites, trips, posts }: Book
                   </>
                 ))}>
                 <svg width="150" height="92" viewBox="0 0 150 92" aria-hidden="true"><rect x="4" y="22" width="142" height="66" rx="6" fill="#1c1a18"/><rect x="4" y="14" width="142" height="14" rx="4" fill="#c9c4b6"/><rect x="22" y="6" width="22" height="10" rx="2" fill="#b9b4a6"/><rect x="104" y="7" width="12" height="9" rx="2" fill="#b9b4a6"/><rect x="10" y="34" width="22" height="46" rx="3" fill="#0e0d0c"/><rect x="118" y="34" width="22" height="46" rx="3" fill="#0e0d0c"/><circle cx="75" cy="56" r="30" fill="#b9b4a6"/><circle cx="75" cy="56" r="25" fill="#16120f"/><circle cx="75" cy="56" r="18" fill="#222c3a"/><circle cx="68" cy="49" r="5" fill="#fff" opacity=".3"/></svg>
-                <span className={styles.tag}>Photographs</span>
+                <span className={styles.tag}>Photos</span>
               </button>
             </li>
             <li>
-              <button type="button" className={`${styles.obj} ${styles.ball}`} aria-expanded={open?.key === 'tennis'} aria-label="Tennis"
+              <button type="button" className={`${styles.obj} ${styles.ball}`} aria-haspopup="dialog" aria-label="Tennis"
                 onClick={(e) => { tennisPlay(e); show('tennis', (<><div className={styles.sub}>Tennis</div><h2>I play tennis.</h2><p className={styles.empty}>Nothing written yet.</p></>)); }}>
                 <svg width="62" height="62" viewBox="0 0 62 62" aria-hidden="true"><defs><radialGradient id="tb" cx=".38" cy=".32" r=".8"><stop offset="0" stopColor="#e6f06a"/><stop offset=".6" stopColor="#c3d233"/><stop offset="1" stopColor="#8a9a1c"/></radialGradient></defs><circle cx="31" cy="31" r="30" fill="url(#tb)"/><path d="M6 14 Q27 31 6 48 M56 14 Q35 31 56 48" stroke="#f7f6ea" strokeWidth="2.6" fill="none"/></svg>
                 <span className={styles.tag}>Tennis</span>
               </button>
             </li>
             <li>
-              <button type="button" className={`${styles.obj} ${styles.nb}`} aria-expanded={open?.key === 'notes'} aria-label="Writing"
+              <button type="button" className={`${styles.obj} ${styles.nb}`} aria-haspopup="dialog" aria-label="Writing"
                 onClick={() => show('notes', (
                   <>
                     <div className={styles.sub}>Writing</div>
@@ -178,7 +209,7 @@ export default function BookshelfHome({ reading, favorites, trips, posts }: Book
               </button>
             </li>
             <li>
-              <button type="button" className={`${styles.obj} ${styles.card}`} aria-expanded={open?.key === 'work'} aria-label="Work"
+              <button type="button" className={`${styles.obj} ${styles.card}`} aria-haspopup="dialog" aria-label="Work"
                 onClick={() => show('work', (
                   <>
                     <div className={styles.sub}>Work</div>
@@ -226,11 +257,16 @@ export default function BookshelfHome({ reading, favorites, trips, posts }: Book
           </ul>
         </section>
         <div className={styles.floor} />
-
-        <section ref={panel} className={styles.drawer} tabIndex={-1} aria-live="polite">
-          {open && <div className={styles.in} key={open.key}>{open.body}</div>}
-        </section>
       </main>
+      {open && (
+        <div className={styles.modal}>
+          <div className={styles.scrim} onClick={close} aria-hidden="true" />
+          <div ref={dialog} className={styles.sheet} role="dialog" aria-modal="true" aria-label="Details" key={open.key}>
+            <button type="button" className={styles.close} data-close onClick={close} aria-label="Close">&times;</button>
+            <div className={styles.in}>{open.body}</div>
+          </div>
+        </div>
+      )}
       {host}
     </div>
   );
