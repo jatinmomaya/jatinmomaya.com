@@ -2,10 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Design tokens. Components read these; nothing else hard-codes a color. */
+:root {
+  /* wall, floor */
+  --wall-a: #27322b;
+  --wall-b: #222c25;
+  --wall-c: #1b231d;
+  --floor-a: #33261b;
+  --floor-b: #1d140d;
+  --base-a: #4a3626;
+  --base-b: #2b1f15;
+  /* wood and cork */
+  --cork: #b4854f;
+  --wood-a: #6e4a2b;
+  --wood-b: #4a3019;
+  --wood-c: #5e3f24;
+  --shelf-a: #7a5a37;
+  --shelf-b: #6a4c2d;
+  --shelf-c: #533a22;
+  --shelf-d: #46301c;
+  /* paper and ink */
+  --paper: #f4eddb;
+  --paper-2: #f2ead6;
+  --paper-3: #f6f0e0;
+  --paper-4: #f8f3e6;
+  --ink: #1f1a12;
+  --ink-2: #2a2116;
+  --ink-mute: #6b5a3a;
+  --ink-faint: #8a7a58;
+  /* accents */
+  --brass: #c9a24a;
+  --ribbon: #a33a2e;
+  --focus: #d9a441;
+  --linkedin: #0a66c2;
+  /* type */
+  --font-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --font-hand: var(--font-caveat), 'Segoe Print', 'Bradley Hand', cursive;
+}
+
 /* Fixed overlays must be scroll-proof on iOS: overflow:hidden alone
    still rubber-bands the page behind them on vertical drags. */
 html, body {
   overscroll-behavior: none;
 }
 
-
+body {
+  background: var(--wall-b);
+}

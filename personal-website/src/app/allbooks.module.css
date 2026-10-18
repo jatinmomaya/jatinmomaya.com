@@ -1,0 +1,37 @@
+/* The full book list behind the shelf. Sheet chrome comes from about.module.css. */
+
+.list { margin: 0 0 28px; padding: 0; list-style: none; }
+
+.row { margin: 0 0 18px; padding: 4px 0 4px 12px; border-left: 2px solid transparent; }
+.row:last-child { margin-bottom: 0; }
+.marked { border-left-color: #c9a24a; }
+
+.rowHead { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.title { font-size: 18px; font-weight: bold; }
+.meta {
+  display: flex; align-items: baseline; gap: 10px; flex: 0 0 auto;
+  font-size: 14px; font-style: italic; color: #8a7a5c; white-space: nowrap;
+}
+.stars { font-style: normal; color: #9a7a2e; letter-spacing: 0.08em; }
+.fav {
+  font: 11px ui-monospace, monospace; font-style: normal; letter-spacing: 0.16em;
+  text-transform: uppercase; color: #9a7a2e;
+}
+.author { font-size: 15px; font-style: italic; color: #5c5040; }
+.note { margin: 6px 0 0; font-size: 16px; line-height: 1.6; color: #4a4136; }
+.empty { margin: 0 0 24px; font-size: 16px; font-style: italic; color: #8a7a5c; }
+
+.filters { display: flex; gap: 8px; margin: 0 0 26px; }
+.filters button {
+  background: none; border: 1px solid #ddd0ae; border-radius: 999px; padding: 6px 14px;
+  font: 12px ui-monospace, monospace; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #6b5f4c; cursor: pointer;
+}
+.filters button[aria-pressed='true'] { background: #2e3d5c; border-color: #2e3d5c; color: #f8f2e4; }
+.filters button:focus-visible { outline: 2px solid #2e3d5c; outline-offset: 2px; }
+
+.footer { margin-top: 30px; }
+
+@media (max-width: 560px) {
+  .rowHead { flex-direction: column; gap: 2px; }
+}

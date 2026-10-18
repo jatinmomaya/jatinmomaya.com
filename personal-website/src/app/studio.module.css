@@ -1,0 +1,109 @@
+/*
+ * The studio: wall, floor and the stage everything stands on.
+ *
+ * Two layouts, one set of components:
+ *  - default (phones, narrow or tall windows): a page that flows and scrolls.
+ *    One unit (--u) is a fixed fraction of a pixel.
+ *  - wide screens (aspect >= 1.1, width >= 960px and height >= 560px, so one unit is never under 0.6px): a fixed 1600 x 900
+ *    artboard scaled to fit the window. One unit is viewport-width / 1600.
+ *
+ * Keep the media query below in sync with board.module.css and shelf.module.css.
+ */
+
+.studio {
+  --u: clamp(0.6px, calc(100vw / 560), 0.9px);
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background: linear-gradient(to bottom, var(--wall-a) 0%, var(--wall-b) 70%, var(--wall-c) 100%);
+  color: var(--ink);
+  font-family: var(--font-serif);
+}
+
+.stage {
+  position: relative;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 18px 12px 0;
+}
+
+/* wall light: the board is lit from above */
+.wallFx { display: none; }
+
+.baseboard {
+  height: 16px;
+  margin-top: 26px;
+  background: linear-gradient(to bottom, var(--base-a), #3a2a1d 14%, var(--base-b));
+}
+.floor {
+  height: 48px;
+  background: linear-gradient(to bottom, var(--floor-a), var(--floor-b));
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background: radial-gradient(130% 110% at 50% 40%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.38) 100%);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+@media (min-aspect-ratio: 11/10) and (min-width: 960px) and (min-height: 560px) {
+  .studio {
+    --W: min(100vw, 177.7778vh);
+    --W: min(100vw, 177.7778dvh);
+    --u: calc(var(--W) / 1600);
+    position: fixed;
+    inset: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .stage {
+    position: absolute;
+    left: calc((100vw - var(--W)) / 2);
+    top: calc((100vh - var(--W) * 9 / 16) / 2);
+    top: calc((100dvh - var(--W) * 9 / 16) / 2);
+    width: var(--W);
+    height: calc(var(--W) * 9 / 16);
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+  .wallFx {
+    display: block;
+    position: absolute;
+    left: calc(var(--u) * 150);
+    top: calc(var(--u) * -140);
+    width: calc(var(--u) * 1300);
+    height: calc(var(--u) * 760);
+    pointer-events: none;
+    background: radial-gradient(closest-side, rgba(255, 206, 140, 0.26), rgba(255, 196, 120, 0.08) 55%, rgba(255, 196, 120, 0));
+  }
+  /* floor and baseboard run past the artboard, so the room is full-bleed */
+  .baseboard,
+  .floor {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 0;
+  }
+  .baseboard {
+    top: calc((100dvh - var(--W) * 9 / 16) / 2 + var(--u) * 868);
+    height: calc(var(--u) * 40);
+  }
+  .floor {
+    top: calc((100dvh - var(--W) * 9 / 16) / 2 + var(--u) * 908);
+    bottom: 0;
+    height: auto;
+  }
+}

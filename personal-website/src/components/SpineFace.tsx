@@ -1,16 +1,13 @@
-import type { CSSProperties } from 'react';
-import styles from '../app/room.module.css';
+import styles from '../app/shelf.module.css';
 
 interface SpineFaceProps {
   title: string;
-  color: string;
-  ink?: string;
 }
 
-/** Shared face treatment for interactive navigation books and display books. */
-export default function SpineFace({ title, color, ink = '#f3ead6' }: SpineFaceProps) {
+/** The face of a book's spine: color comes from the book's --c variable. */
+export default function SpineFace({ title }: SpineFaceProps) {
   return (
-    <span className={styles.spine} style={{ '--c': color, '--ink': ink } as CSSProperties}>
+    <span className={styles.spine}>
       <span className={styles.spineTitle}>{title}</span>
     </span>
   );

@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "export:root": "node scripts/export-root.mjs",
+    "export:check": "node scripts/export-root.mjs --dry-run",
+    "photos": "node scripts/photos.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

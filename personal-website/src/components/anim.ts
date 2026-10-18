@@ -69,6 +69,20 @@ export function playCloseAnimation(el: HTMLElement): Promise<void> {
 }
 
 
+/**
+ * The bloom pose shared by every shelf: mostly face-on with a hint of 3D
+ * turn, lifted and enlarged like the book was pulled off the shelf toward
+ * the viewer. Neighbors part sideways with a slight lean.
+ */
+export function bloomPose(bloom: number, shift: number) {
+  return {
+    translateX: shift,
+    translateY: -14 * bloom,
+    rotateY: -32 * bloom + (shift === 0 ? 0 : -Math.sign(shift) * 4),
+    scale: 1 + 0.18 * bloom,
+  };
+}
+
 export function springBook(el: HTMLElement, values: { translateX: number; translateY: number; rotateY: number; scale: number }) {
   if (prefersReducedMotion()) {
     el.style.transform = `translate(${values.translateX}px, ${values.translateY}px) rotateY(${values.rotateY}deg) scale(${values.scale})`;

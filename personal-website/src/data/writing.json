@@ -1,0 +1,11 @@
+{
+  "note": "Every entry here is filler text (placeholder: true) to be replaced with a real essay. Real posts add a date (YYYY-MM) and an href.",
+  "posts": [
+    { "title": "Lorem ipsum dolor", "placeholder": true },
+    { "title": "Consectetur adipiscing elit", "placeholder": true },
+    { "title": "Eiusmod tempor incididunt", "placeholder": true },
+    { "title": "Ut enim ad minim", "placeholder": true },
+    { "title": "Quis nostrud exercitation", "placeholder": true },
+    { "title": "Duis aute irure dolor", "placeholder": true }
+  ]
+}

@@ -1,0 +1,253 @@
+/*
+ * The corkboard and the things pinned to it. Positions come from inline
+ * custom properties (--x --y --w --h --r, in artboard units) set from
+ * src/data/board.ts; they only apply in the wide layout. On phones the
+ * pins flow into a two-column grid.
+ */
+
+.board { position: relative; margin: 4px 0 0; }
+.frame {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--wood-a), var(--wood-b) 55%, var(--wood-c));
+  box-shadow: inset 0 2px 0 rgba(255, 214, 160, 0.2), 0 18px 26px rgba(0, 0, 0, 0.5);
+}
+.cork {
+  position: absolute;
+  inset: 12px;
+  border-radius: 2px;
+  background: var(--cork) url(/textures/cork.jpg) 0 0 / 320px;
+  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.45);
+}
+/* the board is lit from above */
+.cork::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(60% 90% at 50% 0%, rgba(255, 214, 150, 0.28), rgba(255, 214, 150, 0.05) 60%, rgba(0, 0, 0, 0.2) 100%);
+}
+.pins {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 38px 18px;
+  align-items: center;
+  padding: 34px 26px 34px;
+}
+
+/* ---------- one pinned thing ---------- */
+.item {
+  position: relative;
+  grid-column: span var(--span, 1);
+  transform: rotate(var(--r));
+  filter: drop-shadow(0 calc(var(--u) * 9) calc(var(--u) * 8) rgba(0, 0, 0, 0.5));
+  transition: transform 0.18s cubic-bezier(0.3, 0.7, 0.3, 1), filter 0.18s ease-out;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.interactive { cursor: pointer; }
+/* picking at a pin: the paper lifts a little toward you */
+.interactive:hover,
+.interactive:focus-visible {
+  transform: translateY(calc(var(--u) * -5)) rotate(var(--r)) scale(1.012);
+  filter: drop-shadow(0 calc(var(--u) * 15) calc(var(--u) * 11) rgba(0, 0, 0, 0.55));
+}
+.interactive:focus-visible { outline: 3px solid var(--focus); outline-offset: 5px; border-radius: 2px; }
+
+.pin {
+  --pc: #d6453a;
+  --pc2: #9b2c24;
+  position: absolute;
+  left: var(--pinx, 50%);
+  top: calc(var(--u) * 9);
+  width: max(15px, calc(var(--u) * 24));
+  height: max(15px, calc(var(--u) * 24));
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.5), var(--pc) 40%, var(--pc2) 85%);
+  filter: drop-shadow(calc(var(--u) * 3) calc(var(--u) * 6) calc(var(--u) * 4) rgba(0, 0, 0, 0.55));
+  z-index: 5;
+  pointer-events: none;
+}
+.pin::after {
+  content: '';
+  position: absolute;
+  left: 22%;
+  top: 18%;
+  width: 30%;
+  height: 30%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+}
+.pinBrass { --pc: #e0b341; --pc2: #a07a1c; }
+.pinBlue { --pc: #3a78c9; --pc2: #234d85; }
+.pinGreen { --pc: #3a9a62; --pc2: #24673f; }
+
+/* masking-tape label stuck to the edge of an item */
+.label {
+  position: absolute;
+  left: calc(var(--u) * var(--lx));
+  top: calc(var(--u) * var(--ly));
+  transform: rotate(var(--lr, 0deg));
+  z-index: 4;
+  padding: max(3px, calc(var(--u) * 5)) max(9px, calc(var(--u) * 15));
+  background: #efe6cf;
+  color: #2e2a1f;
+  font: 700 max(15px, calc(var(--u) * 23)) / 1 var(--font-hand);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  clip-path: polygon(1% 0, 99% 4%, 100% 100%, 0 96%);
+  pointer-events: none;
+}
+
+.serif { font-family: var(--font-serif); }
+.mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ---------- masthead ---------- */
+.masthead { background: var(--paper); padding: max(12px, calc(var(--u) * 17)) max(14px, calc(var(--u) * 24)); --span: 2; }
+.masthead h1 {
+  margin: 0;
+  font: 400 max(30px, calc(var(--u) * 50)) / 1 var(--font-serif);
+  letter-spacing: 0.01em;
+  color: var(--ink);
+}
+
+/* ---------- photo prints ---------- */
+.print {
+  background: var(--paper-2);
+  aspect-ratio: calc(var(--w) / var(--h));
+}
+.printFrame {
+  position: absolute;
+  left: calc(var(--u) * 12);
+  right: calc(var(--u) * 12);
+  top: calc(var(--u) * 12);
+  bottom: calc(var(--u) * 40);
+  overflow: hidden;
+  background: #cfc7b6;
+}
+.printFrame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.printFrame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 calc(var(--u) * 14) rgba(0, 0, 0, 0.28);
+}
+.printCaption {
+  position: absolute;
+  left: calc(var(--u) * 10);
+  right: calc(var(--u) * 10);
+  bottom: calc(var(--u) * 9);
+  text-align: center;
+  font: 500 max(14px, calc(var(--u) * 22)) / 1 var(--font-hand);
+  color: #4a463e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- about card ---------- */
+.about { background: var(--paper-2); padding: max(18px, calc(var(--u) * 28)) max(10px, calc(var(--u) * 16)) max(10px, calc(var(--u) * 16)); }
+.about strong {
+  display: block;
+  font: 600 max(15px, calc(var(--u) * 26)) / 1 Georgia, serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.about i { display: block; margin: max(6px, calc(var(--u) * 10)) 0; width: calc(var(--u) * 54); min-width: 30px; height: 2px; background: #9a7a2e; }
+.about span { display: block; font-size: max(10px, calc(var(--u) * 12)); letter-spacing: 0.08em; line-height: 1.5; color: var(--ink-mute); }
+
+/* ---------- link cards ---------- */
+.link {
+  display: flex;
+  align-items: center;
+  gap: max(9px, calc(var(--u) * 14));
+  padding: 0 max(9px, calc(var(--u) * 14));
+  min-height: max(52px, calc(var(--u) * 76));
+  background: var(--paper-2);
+  border-left: max(5px, calc(var(--u) * 8)) solid var(--accent, var(--ink));
+}
+.link svg { flex: none; width: max(26px, calc(var(--u) * 40)); height: max(26px, calc(var(--u) * 40)); }
+.link strong { display: block; font: 700 max(15px, calc(var(--u) * 22)) / 1.1 var(--font-serif); color: var(--ink); }
+.link span { display: block; margin-top: max(2px, calc(var(--u) * 4)); font: max(10px, calc(var(--u) * 10.5)) var(--font-mono); color: var(--ink-mute); overflow-wrap: anywhere; }
+
+/* ---------- resume: small, but clearly a resume ---------- */
+.resume { background: var(--paper-4); padding: max(18px, calc(var(--u) * 26)) max(10px, calc(var(--u) * 14)) max(10px, calc(var(--u) * 14)); }
+.resume strong { display: block; font: 700 max(13px, calc(var(--u) * 17)) / 1 var(--font-serif); color: var(--ink); }
+.resume .kind { margin-top: calc(var(--u) * 3); font-size: max(9.5px, calc(var(--u) * 8.5)); color: var(--ink-faint); }
+.resume hr { margin: max(5px, calc(var(--u) * 7)) 0; height: 1.5px; border: 0; background: var(--ink-2); }
+.resume ul { margin: 0; padding: 0; list-style: none; }
+.resume li { margin-top: max(5px, calc(var(--u) * 7)); }
+.resume li b { display: block; font: 700 max(11px, calc(var(--u) * 12.5)) / 1.1 var(--font-serif); color: var(--ink); }
+.resume li s { display: block; margin-top: calc(var(--u) * 3); height: max(2px, calc(var(--u) * 2)); text-decoration: none; background: rgba(60, 50, 40, 0.2); }
+.resume li s + s { background: rgba(60, 50, 40, 0.14); }
+.pdf { position: absolute; right: calc(var(--u) * 10); bottom: calc(var(--u) * 8); font-size: max(9.5px, calc(var(--u) * 8.5)); color: var(--ribbon); }
+
+/* ---------- writing: a typeset index ---------- */
+.writing { background: var(--paper-3); padding: max(14px, calc(var(--u) * 30)) max(14px, calc(var(--u) * 26)) max(14px, calc(var(--u) * 20)); --span: 2; }
+.writing h2 { margin: 0; font-size: max(11px, calc(var(--u) * 13)); font-weight: 400; color: var(--ink-faint); }
+.writing hr { margin: max(6px, calc(var(--u) * 8)) 0 max(8px, calc(var(--u) * 14)); height: 2px; border: 0; background: var(--ink-2); }
+.post { display: block; padding: max(7px, calc(var(--u) * 10)) 0; border-bottom: 1px solid rgba(60, 50, 40, 0.2); color: inherit; text-decoration: none; }
+.post time, .post em { display: block; font-size: max(10px, calc(var(--u) * 11)); font-style: normal; color: var(--ink-faint); }
+.post em { color: var(--ribbon); }
+.post span { display: block; margin-top: calc(var(--u) * 4); font: 400 max(15px, calc(var(--u) * 21)) / 1.18 var(--font-serif); color: var(--ink); }
+a.post:hover span, a.post:focus-visible span { text-decoration: underline; text-underline-offset: 3px; }
+
+@media (min-aspect-ratio: 11/10) and (min-width: 960px) and (min-height: 560px) {
+  .board { position: absolute; inset: 0; margin: 0; }
+  .frame {
+    inset: auto;
+    left: calc(var(--u) * 50);
+    top: calc(var(--u) * 26);
+    width: calc(var(--u) * 1500);
+    height: calc(var(--u) * 642);
+    box-shadow: inset 0 calc(var(--u) * 2) 0 rgba(255, 214, 160, 0.2), 0 calc(var(--u) * 22) calc(var(--u) * 30) rgba(0, 0, 0, 0.55);
+  }
+  .cork {
+    inset: auto;
+    left: calc(var(--u) * 70);
+    top: calc(var(--u) * 46);
+    width: calc(var(--u) * 1460);
+    height: calc(var(--u) * 602);
+    background-size: calc(var(--u) * 320);
+    box-shadow: inset 0 calc(var(--u) * 4) calc(var(--u) * 10) rgba(0, 0, 0, 0.45);
+  }
+  .pins { display: block; padding: 0; }
+  .item {
+    position: absolute;
+    left: calc(var(--u) * var(--x));
+    top: calc(var(--u) * var(--y));
+    width: calc(var(--u) * var(--w));
+    height: calc(var(--u) * var(--h));
+    aspect-ratio: auto;
+    grid-column: auto;
+  }
+  .link, .resume, .about, .writing, .masthead { min-height: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item { transition: none; }
+  .interactive:hover, .interactive:focus-visible { transform: rotate(var(--r)); }
+}
