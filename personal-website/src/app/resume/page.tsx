@@ -1,16 +1,25 @@
+import { SITE } from '../../data/site';
+import styles from '../plain.module.css';
+
+export const metadata = {
+  title: 'Resume · Jatin Momaya',
+  description: 'The resume of Jatin Momaya.',
+};
+
 export default function Resume() {
-    return (
-      <div className="container mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-6">Resume</h1>
-        <p className="mb-4">
-          Below is my resume. Feel free to view or download it!
+  return (
+    <main className={styles.shell}>
+      <div className={styles.wrap}>
+        <h1 className={styles.title}>Resume</h1>
+        <p className={styles.lede}>
+          Below is my resume. If it does not show up,{' '}
+          <a className={styles.link} href={SITE.resumeHref}>
+            open the PDF
+          </a>
+          .
         </p>
-        <iframe
-          src="/resume.pdf"
-          className="w-full h-screen border-2 border-gray-300"
-          title="Resume"
-        ></iframe>
+        <iframe className={styles.pdf} src={SITE.resumeHref} title="Resume" />
       </div>
-    );
-  }
-  
+    </main>
+  );
+}
