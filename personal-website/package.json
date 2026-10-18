@@ -7,11 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "export:root": "node scripts/export-root.mjs",
+    "export:root": "node scripts/check-data.mjs && node scripts/export-root.mjs",
     "export:check": "node scripts/export-root.mjs --dry-run",
     "photos": "node scripts/photos.mjs",
     "check:assets": "node scripts/check-assets.mjs",
-    "favorites": "node scripts/favorites.mjs"
+    "favorites": "node scripts/favorites.mjs",
+    "typecheck": "tsc --noEmit",
+    "check:data": "node scripts/check-data.mjs",
+    "verify": "npm run lint && npm run typecheck && npm run check:data && npm run build && npm run check:assets && npm run export:check"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
@@ -28,6 +31,7 @@
     "eslint": "^9",
     "eslint-config-next": "^15.1.9",
     "postcss": "^8",
+    "sharp": "^0.33.5",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
