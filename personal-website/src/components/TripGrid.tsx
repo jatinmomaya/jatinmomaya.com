@@ -5,7 +5,6 @@ import { loadTrip, photoUrl, srcSet, type Trip, type TripPhoto, type TripSummary
 import PhotoViewer from './PhotoViewer';
 import { useOverlayDialog } from './useOverlayDialog';
 import { playPageTurn } from './anim';
-import about from '../app/about.module.css';
 import styles from '../app/photobook.module.css';
 
 interface TripGridProps {
@@ -135,8 +134,8 @@ export default function TripGrid({ summary, origin, onClose }: TripGridProps) {
 
   return (
     <>
-      <div className={`${about.overlay}${closing ? ` ${about.closing}` : ''}`}>
-        <div className={about.scrim} onClick={requestClose} aria-hidden="true" />
+      <div className={`${styles.overlay}${closing ? ` ${styles.closing}` : ''}`}>
+        <div className={styles.scrim} onClick={requestClose} aria-hidden="true" />
         <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="trip-title" tabIndex={-1} className={styles.book}>
           <button type="button" className={styles.close} onClick={requestClose} aria-label="Close the book">
             &times;

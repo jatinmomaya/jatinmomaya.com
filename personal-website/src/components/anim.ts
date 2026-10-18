@@ -5,7 +5,7 @@
  * contract lives in one place: if the user prefers reduced motion,
  * timelines never play and elements jump to their end state.
  */
-import { animate, createTimeline, spring } from 'animejs';
+import { animate, createTimeline } from 'animejs';
 
 export function prefersReducedMotion(): boolean {
   return (
@@ -66,38 +66,4 @@ export function playCloseAnimation(el: HTMLElement): Promise<void> {
       onComplete: () => resolve(),
     });
   });
-}
-
-
-/**
- * The bloom pose shared by every shelf: mostly face-on with a hint of 3D
- * turn, lifted and enlarged like the book was pulled off the shelf toward
- * the viewer. Neighbors part sideways with a slight lean.
- */
-export function bloomPose(bloom: number, shift: number) {
-  return {
-    translateX: shift,
-    translateY: -14 * bloom,
-    rotateY: -32 * bloom + (shift === 0 ? 0 : -Math.sign(shift) * 4),
-    scale: 1 + 0.18 * bloom,
-  };
-}
-
-export function springBook(el: HTMLElement, values: { translateX: number; translateY: number; rotateY: number; scale: number }) {
-  if (prefersReducedMotion()) {
-    el.style.transform = `translate(${values.translateX}px, ${values.translateY}px) rotateY(${values.rotateY}deg) scale(${values.scale})`;
-    return;
-  }
-  animate(el, { ...values, ease: spring({ stiffness: 150, damping: 16, mass: 0.7 }) });
-}
-
-export function springCord(lineEl: SVGElement, knobEl: SVGElement) {
-  if (prefersReducedMotion()) {
-    lineEl.style.transform = 'scaleY(1)';
-    knobEl.style.transform = 'translateY(0px)';
-    return;
-  }
-  const cordSpring = spring({ stiffness: 220, damping: 12, mass: 0.6 });
-  animate(lineEl, { scaleY: [1, 1.35, 1], ease: cordSpring });
-  animate(knobEl, { translateY: [0, 12, 0], ease: spring({ stiffness: 220, damping: 12, mass: 0.6 }) });
 }

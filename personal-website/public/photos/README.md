@@ -18,7 +18,7 @@ there is nothing else to register or place.
    newest first). Write a `caption` and `alt` for each photo. Alt text is a
    short description for people who can't see it.
 4. The order of `photos` is the order in the grid. The first photo is the
-   cover; the first four make the stack. Reorder lines by hand to change that.
+   cover. Reorder lines by hand to change that.
 5. `npm run check:assets` shows sizes against the budget. It also runs before
    every `npm run export:root`.
 
@@ -26,11 +26,11 @@ there is nothing else to register or place.
 
 ## How loading stays light
 
-- The homepage receives only each trip's title, count and four stack photos.
+- The homepage receives only each trip's title, count and cover photo.
   It loads the 480px size of those (about 30 KB each).
 - A trip's full photo list is a separate chunk that loads when the trip opens.
-- Grid photos load lazily as rows scroll near, each with its size and a color
-  placeholder reserved, so nothing jumps. The full-screen size loads only when
+- The photo book shows six frames a page; frames load lazily, each with a
+  color placeholder reserved, so nothing jumps. The full-screen size loads only when
   a photo is opened, and only its neighbors are preloaded.
 
 ## Budgets and when to move off git

@@ -1,5 +1,4 @@
-import BookshelfHome, { type FavoriteItem } from '../components/BookshelfHome';
-import type { Post } from '../components/BoardItems';
+import BookshelfHome, { type FavoriteItem, type Post } from '../components/BookshelfHome';
 import booksData from '../data/books.json';
 import favoritesData from '../data/favorites.json';
 import writingData from '../data/writing.json';

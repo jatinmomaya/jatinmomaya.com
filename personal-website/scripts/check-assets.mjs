@@ -45,7 +45,7 @@ for (const f of manifests) {
   if (trip.id !== id) err(`${f}: "id" is "${trip.id}", expected "${id}"`);
   if (!trip.title) err(`${f}: missing "title"`);
   if (!/^\d{4}-\d{2}$/.test(trip.date ?? '')) err(`${f}: "date" must look like 2026-09`);
-  if (!trip.when) warn(`${f}: "when" is empty (the text shown on the stack)`);
+  if (!trip.when) warn(`${f}: "when" is empty (the text shown with the trip)`);
   if (!Array.isArray(trip.photos) || !trip.photos.length) { err(`${f}: no photos`); continue; }
 
   const referenced = new Set();
@@ -59,15 +59,13 @@ for (const f of manifests) {
     if (p.taken && !/^\d{4}-\d{2}-\d{2}$/.test(p.taken)) err(`${f}/${p.id}: "taken" must look like 2025-10-11`);
     if (!/^#[0-9a-f]{6}$/i.test(p.bg ?? '')) err(`${f}/${p.id}: missing "bg" color (run the photos script)`);
     const widths = p.widths ?? [];
-    widths.forEach((wd, i) => {
-      const file = path.join(photosDir, id, `${p.id}-${wd}.webp`);
-      referenced.add(path.basename(file));
-      if (!existsSync(file)) return err(`${f}/${p.id}: missing file ${path.relative('.', file)}`);
-      return null;
-    });
     for (const [i, wd] of widths.entries()) {
       const file = path.join(photosDir, id, `${p.id}-${wd}.webp`);
-      if (!existsSync(file)) continue;
+      referenced.add(path.basename(file));
+      if (!existsSync(file)) {
+        err(`${f}/${p.id}: missing file ${path.relative('.', file)}`);
+        continue;
+      }
       const size = (await stat(file)).size;
       bytes += size;
       const cap = i === widths.length - 1 ? BUDGET.full : wd <= 480 ? BUDGET.grid : BUDGET.mid;

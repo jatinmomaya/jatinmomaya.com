@@ -3,7 +3,7 @@
  * and kept up to date by `npm run photos -- <trip-id>` (see scripts/photos.mjs).
  *
  * The homepage only ever receives a TripSummary: the title, the count and the
- * first few photos for the stack. The full photo list is a separate chunk that
+ * cover photo. The full photo list is a separate chunk that
  * loads when a trip is opened.
  */
 
@@ -38,12 +38,9 @@ export interface TripSummary {
   when: string;
   date: string;
   count: number;
-  /** the photos shown in the stack, cover first */
-  stack: TripPhoto[];
+  /** the photo that stands for the trip */
+  cover: TripPhoto;
 }
-
-/** How many photos a stack shows. */
-export const STACK_LAYERS = 4;
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -75,7 +72,7 @@ export function summarize(trip: Trip): TripSummary {
     when: trip.when,
     date: trip.date,
     count: trip.photos.length,
-    stack: trip.photos.slice(0, STACK_LAYERS),
+    cover: trip.photos[0],
   };
 }
 
@@ -83,40 +80,4 @@ export function summarize(trip: Trip): TripSummary {
 export async function loadTrip(id: string): Promise<Trip> {
   const mod = await import(`../data/trips/${id}.json`);
   return mod.default as Trip;
-}
-
-export interface Tile {
-  photo: TripPhoto;
-  index: number;
-  w: number;
-  h: number;
-}
-
-/**
- * Lays photos out in justified rows: every row fills the width exactly and
- * keeps each photo's own proportions, with the last row left-aligned at the
- * target height. The size of every tile is known before any image loads, so
- * nothing moves while photos arrive.
- */
-export function justify(photos: TripPhoto[], width: number, target: number, gap: number): Tile[][] {
-  if (width <= 0) return [];
-  const rows: Tile[][] = [];
-  let row: Tile[] = [];
-  let ratios = 0;
-  const flush = (last: boolean) => {
-    const fit = (width - gap * (row.length - 1)) / ratios;
-    const h = last ? Math.min(target, fit) : fit;
-    rows.push(row.map((t) => ({ ...t, h, w: h * (t.photo.w / t.photo.h) })));
-  };
-  photos.forEach((photo, index) => {
-    row.push({ photo, index, w: 0, h: 0 });
-    ratios += photo.w / photo.h;
-    if (ratios * target + gap * (row.length - 1) >= width) {
-      flush(false);
-      row = [];
-      ratios = 0;
-    }
-  });
-  if (row.length) flush(true);
-  return rows;
 }

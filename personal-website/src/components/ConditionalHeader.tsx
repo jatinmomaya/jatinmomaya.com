@@ -3,9 +3,9 @@
 import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
 
-// The starter site chrome, loaded only where it's shown. Hidden on the
-// homepage and the trips page so the room scene renders full-viewport with no chrome breaking
-// the immersion — and never parsed on first paint.
+// The plain page chrome, loaded only where it is shown (the resume). The
+// shelf and the trips page have their own full-screen layouts, so it never
+// loads there.
 const Header = dynamic(() => import('./Header'), { ssr: false });
 
 export default function ConditionalHeader() {

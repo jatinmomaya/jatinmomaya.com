@@ -4,6 +4,30 @@
  * on the dimmed shelf page, so it follows the same light / dark setting.
  */
 
+/* the layer the book opens in: a dimmed page behind it */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overscroll-behavior: none;
+  perspective: 1400px;
+}
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(24, 18, 12, 0.6);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  animation: scrimIn 0.25s ease;
+}
+@keyframes scrimIn { from { opacity: 0; } }
+.closing .scrim { animation: scrimOut 0.24s ease forwards; }
+@keyframes scrimOut { to { opacity: 0; } }
+
 .book {
   --cover-a: #6a4a2c;
   --cover-b: #4a3019;
@@ -131,4 +155,5 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .film { transition: none; }
+  .scrim, .closing .scrim { animation: none; }
 }

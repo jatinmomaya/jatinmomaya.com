@@ -70,37 +70,3 @@ export function toShelfBook(book: Book): ShelfBook {
     height: 118 + (h >>> 9) % 34,
   };
 }
-
-/** Reading now first, then finished books newest first. Undated books keep file order, last. */
-export function sortBooks(books: Book[]): Book[] {
-  const rank = (b: Book) => (b.status === 'reading' ? 0 : 1);
-  return books
-    .map((book, index) => ({ book, index }))
-    .sort((a, b) => {
-      if (rank(a.book) !== rank(b.book)) return rank(a.book) - rank(b.book);
-      const da = a.book.finished ?? '';
-      const db = b.book.finished ?? '';
-      if (da !== db) return da < db ? 1 : -1;
-      return a.index - b.index;
-    })
-    .map((x) => x.book);
-}
-
-/**
- * The most books the shelf ever shows, however wide the screen. A shelf of a
- * dozen reads as a shelf; more reads as a wall. The row trims further to fit
- * narrow screens, and the full list lives behind the "All books" stack.
- */
-export const SHELF_MAX = 12;
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-export function formatFinished(finished?: string): string {
-  if (!finished) return '';
-  const [y, m] = finished.split('-');
-  return m ? `${MONTHS[Number(m) - 1] ?? ''} ${y}`.trim() : y;
-}
-
-export function finishedYear(finished?: string): string {
-  return finished ? finished.slice(0, 4) : '';
-}

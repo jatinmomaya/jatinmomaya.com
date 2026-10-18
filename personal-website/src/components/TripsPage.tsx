@@ -22,7 +22,7 @@ export default function TripsPage({ trips }: { trips: TripSummary[] }) {
         {trips.length ? (
           <ul className={styles.grid}>
             {trips.map((trip) => {
-              const cover = trip.stack[0];
+              const cover = trip.cover;
               return (
                 <li key={trip.id}>
                   <button type="button" className={styles.album} onClick={(e) => openTrip(e, trip)}>

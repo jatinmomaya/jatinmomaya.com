@@ -7,8 +7,16 @@ import { photoUrl, srcSet, type TripSummary } from '../lib/trips';
 import { ABOUT_LEDE, WORK } from '../data/about';
 import { SITE } from '../data/site';
 import { useTripHost } from './useTripHost';
-import type { Post } from './BoardItems';
 import styles from '../app/bookshelfhome.module.css';
+
+export interface Post {
+  title: string;
+  /** YYYY-MM, once it is published */
+  date?: string;
+  href?: string;
+  /** filler text standing in for an essay that is not written yet */
+  placeholder?: boolean;
+}
 
 export interface FavoriteItem {
   id: string;
@@ -161,7 +169,7 @@ export default function BookshelfHome({ reading, favorites, trips, posts }: Book
                     <p>All taken by me. Open a trip to flip through it.</p>
                     <ul className={styles.trips}>
                       {trips.map((t) => {
-                        const cover = t.stack[0];
+                        const cover = t.cover;
                         return (
                           <li key={t.id}>
                             <button type="button" className={styles.trip} onClick={(e) => openTrip(e, t)}>

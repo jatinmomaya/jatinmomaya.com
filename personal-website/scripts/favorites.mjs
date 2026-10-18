@@ -52,6 +52,12 @@ const items = xml
     };
   });
 
+// Never overwrite the shelf with nothing: an empty or changed feed means something is wrong.
+if (items.length === 0) {
+  console.error('favorites: the feed returned no books, so src/data/favorites.json was left alone.');
+  process.exit(1);
+}
+
 // Collapse into shelf items, keeping the order the feed gives (newest added first).
 const shelf = [];
 const bySeries = new Map();
