@@ -110,12 +110,12 @@ export default function BookshelfHome({ reading, favorites, trips, posts }: Book
           className={`${styles.book}${opts.count ? ` ${styles.series}` : ''}`}
           style={{ width: s.width, height: `calc(${s.height} * 1cqh)`, '--c': s.color, '--ink': s.ink } as React.CSSProperties}
           aria-haspopup="dialog"
-          aria-label={`${b.title} by ${b.author}${opts.ribbon ? ', reading now' : ''}${opts.count ? `, ${opts.count} books` : ''}`}
+          aria-label={`${b.title.split(':')[0]}${opts.count ? ` ${opts.count}` : ''}, ${b.title.includes(':') ? `${b.title}, ` : ''}by ${b.author}${opts.ribbon ? ', reading now' : ''}${opts.count ? `, ${opts.count} books` : ''}`}
           onClick={() => show(key, body)}
         >
           <span>{b.title.split(':')[0]}</span>
           {opts.ribbon && <i className={styles.ribbon} aria-hidden="true" />}
-          {opts.count ? <em className={styles.count}>{opts.count}</em> : null}
+          {opts.count ? <>{' '}<em className={styles.count}>{opts.count}</em></> : null}
         </button>
       </li>
     );
@@ -161,7 +161,7 @@ export default function BookshelfHome({ reading, favorites, trips, posts }: Book
 
           <ul className={`${styles.row} ${styles.objects}`} aria-label="Things on the shelf">
             <li>
-              <button type="button" className={`${styles.obj} ${styles.cam}`} aria-haspopup="dialog" aria-label="Photographs"
+              <button type="button" className={`${styles.obj} ${styles.cam}`} aria-haspopup="dialog"
                 onClick={() => show('cam', (
                   <>
                     <div className={styles.sub}>Photographs</div>
@@ -189,14 +189,14 @@ export default function BookshelfHome({ reading, favorites, trips, posts }: Book
               </button>
             </li>
             <li>
-              <button type="button" className={`${styles.obj} ${styles.ball}`} aria-haspopup="dialog" aria-label="Tennis"
+              <button type="button" className={`${styles.obj} ${styles.ball}`} aria-haspopup="dialog"
                 onClick={(e) => { tennisPlay(e); show('tennis', (<><div className={styles.sub}>Tennis</div><h2>I play tennis.</h2><p className={styles.empty}>Nothing written yet.</p></>)); }}>
                 <svg width="62" height="62" viewBox="0 0 62 62" aria-hidden="true"><defs><radialGradient id="tb" cx=".38" cy=".32" r=".8"><stop offset="0" stopColor="#e6f06a"/><stop offset=".6" stopColor="#c3d233"/><stop offset="1" stopColor="#8a9a1c"/></radialGradient></defs><circle cx="31" cy="31" r="30" fill="url(#tb)"/><path d="M6 14 Q27 31 6 48 M56 14 Q35 31 56 48" stroke="#f7f6ea" strokeWidth="2.6" fill="none"/></svg>
                 <span className={styles.tag}>Tennis</span>
               </button>
             </li>
             <li>
-              <button type="button" className={`${styles.obj} ${styles.nb}`} aria-haspopup="dialog" aria-label="Writing"
+              <button type="button" className={`${styles.obj} ${styles.nb}`} aria-haspopup="dialog"
                 onClick={() => show('notes', (
                   <>
                     <div className={styles.sub}>Writing</div>
@@ -217,7 +217,7 @@ export default function BookshelfHome({ reading, favorites, trips, posts }: Book
               </button>
             </li>
             <li>
-              <button type="button" className={`${styles.obj} ${styles.card}`} aria-haspopup="dialog" aria-label="Work"
+              <button type="button" className={`${styles.obj} ${styles.card}`} aria-haspopup="dialog"
                 onClick={() => show('work', (
                   <>
                     <div className={styles.sub}>Work</div>

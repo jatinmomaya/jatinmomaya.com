@@ -171,7 +171,7 @@ export default function TripGrid({ summary, origin, onClose }: TripGridProps) {
                           className={styles.frame}
                           data-photo={photo.id}
                           title={photo.caption || undefined}
-                          aria-label={`Photo ${index + 1} of ${summary.count}: ${[photo.caption || photo.alt, shortDate(photo.taken)].filter(Boolean).join(', ')}`}
+                          aria-label={`${String(index + 1).padStart(2, '0')} ${shortDate(photo.taken)}: ${photo.caption || photo.alt}. Photo ${index + 1} of ${summary.count}`}
                           onClick={(e) => {
                             const film = e.currentTarget.querySelector('[data-film]');
                             setViewer({ index, from: (film ?? e.currentTarget).getBoundingClientRect() });
@@ -191,7 +191,7 @@ export default function TripGrid({ summary, origin, onClose }: TripGridProps) {
                             />
                           </span>
                           <span className={styles.no}>
-                            <b>{String(index + 1).padStart(2, '0')}</b>
+                            <b>{String(index + 1).padStart(2, '0')}</b>{' '}
                             <i>{shortDate(photo.taken)}</i>
                           </span>
                         </button>

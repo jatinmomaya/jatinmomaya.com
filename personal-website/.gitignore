@@ -42,3 +42,7 @@ next-env.d.ts
 
 # originals for the photo script; never committed
 photos-src/
+
+# Playwright
+/test-results/
+/playwright-report/
