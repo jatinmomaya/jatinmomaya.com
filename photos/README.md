@@ -5,23 +5,20 @@ match the id in `src/components/photobook/chapters.ts`.
 
 ## Adding a new chapter
 
-1. Export full-size originals however you like, then re-encode for the web:
-   `personal-website/scripts/optimize-photos.sh <chapter-id>/`.
-   This resizes to 1170px wide, JPEG quality 68, progressive. A 19-photo
-   chapter lands around 2.6 MB total.
-2. Number files `01.jpg`, `02.jpg`, … in display order.
+1. Put the full-size originals in `public/photos/<chapter-id>/src/`.
+2. Run `npm run photos -- <chapter-id>` from `personal-website/`. It writes
+   `NN.jpg` (1170px wide, quality 68, for the photobook) and `t/NN.jpg`
+   (800px wide, for the pinboard prints), numbered in file-name order. A
+   19-photo chapter lands around 2.6 MB for the photobook plus 1.3 MB of
+   thumbnails. Delete `src/` before committing; originals do not belong in git.
 3. Add a data file `src/components/photobook/<id>.ts` (copy `mexico.ts`):
    one entry per photo with `src`, `caption`, `alt`, and the intrinsic
-   `width`/`height` (prevents layout shift; read them from the file).
+   `width`/`height` of the `NN.jpg` (prevents layout shift).
 4. Register the chapter in `CHAPTERS` inside
    `src/components/photobook/chapters.ts`.
-5. Point a shelf book at it in `Bookshelf.tsx` via
-   `openChapter('<book-id>', '<chapter-id>')`.
+5. To hang photos on the pinboard, set `photo:` (an index into the chapter)
+   on a print slot in `src/data/board.ts`. A portrait slot takes a portrait
+   photo.
 
-## Rules that keep the site fast
-
-- Reference photos by URL string (`/photos/<id>/01.jpg`), never `import`
-  them — imports would bundle photo bytes into the JavaScript.
-- Images only load when their chapter is opened. The overlay preloads
-  neighbors as you turn pages; nothing else fetches ahead.
-- Keep originals out of the repo; only the re-encoded web versions live here.
+Rebuilding only the thumbnails from the existing web versions:
+`npm run photos -- <chapter-id> --thumbs`.
