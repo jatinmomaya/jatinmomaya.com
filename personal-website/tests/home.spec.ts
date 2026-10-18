@@ -41,6 +41,27 @@ for (const screen of SCREENS) {
   });
 }
 
+// Linux and Android fall back to a wider monospace font than Windows or macOS (about 0.6em a letter).
+// Courier New is that wide, so forcing it here stands in for those devices.
+for (const screen of SCREENS.filter((s) => s.width <= 812)) {
+  test(`spine titles still fit when the monospace font is wide: ${screen.name}`, async ({ page }) => {
+    await page.setViewportSize({ width: screen.width, height: screen.height });
+    await page.addInitScript(() => {
+      const css = document.createElement('style');
+      css.textContent = "button span, button { font-family: 'Courier New', Courier, monospace !important; }";
+      document.addEventListener('DOMContentLoaded', () => document.head.appendChild(css));
+    });
+    await openHome(page);
+    const cut = await page.evaluate(() =>
+      [...document.querySelectorAll('ul[aria-label] button')].flatMap((b) => {
+        const t = b.querySelector('span');
+        return t && t.scrollHeight > t.clientHeight + 1 ? [b.getAttribute('aria-label') ?? ''] : [];
+      }),
+    );
+    expect(cut).toEqual([]);
+  });
+}
+
 test('no failed requests or console errors on the home page', async ({ page }) => {
   const problems: string[] = [];
   page.on('console', (m) => m.type() === 'error' && problems.push(`console: ${m.text()}`));

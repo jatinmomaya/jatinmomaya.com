@@ -89,14 +89,16 @@
 .book span {
   writing-mode: vertical-rl;
   font: 400 11px var(--font-mono);
-  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink, #f1e8d4);
-  font-size: clamp(8px, 5.6cqh, 10px);
-  letter-spacing: 0.05em;
+  /* small and tight, so a long title wraps to a second column instead of running off the spine;
+     a wide fallback monospace font (Linux, Android) must still fit */
+  font-size: clamp(7px, 5.2cqh, 10px);
+  letter-spacing: 0.02em;
   line-height: 1.15;
-  max-height: 84%;
+  max-height: 90%;
   overflow: hidden;
+  overflow-wrap: anywhere; /* last resort: break a very long word rather than cut it off */
   white-space: normal;
   text-align: center;
 }
