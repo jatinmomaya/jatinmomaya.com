@@ -42,6 +42,8 @@ const LEGACY = [
   'file.svg', 'globe.svg', 'next.svg', 'vercel.svg', 'window.svg',
   'textures/cork.jpg',
   'books/kitchen-confidential.jpg', 'books/never-finished.jpg', 'books/steve-jobs.jpg', 'books/README.md',
+  'photos/2022/december/photo1.jpg',
+  'photos/2023/february/photo1.jpg', 'photos/2023/january/photo1.jpg', 'photos/2023/january/photo2.jpg',
 ];
 
 const isProtected = (rel) => PROTECTED.some((p) => (p.endsWith('/') ? rel.startsWith(p) : rel === p));
