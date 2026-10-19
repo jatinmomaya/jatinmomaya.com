@@ -42,7 +42,7 @@
   flex: 1 1 auto;
   min-height: 0;
   display: grid;
-  grid-template-rows: auto minmax(96px, 1fr) minmax(96px, 1fr) auto minmax(96px, 1fr);
+  grid-template-rows: minmax(96px, 1fr) auto minmax(96px, 1fr) auto minmax(96px, 1fr);
   
   border: 12px solid var(--woodd);
   border-bottom-width: 0;
@@ -178,9 +178,9 @@
   .hero p { margin-top: 2px; font-size: 14px; }
   .hero small { display: none; }
   .unit { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto minmax(0, 1fr); column-gap: 6px; background: var(--woodd); }
-  .unit > :nth-child(1) { grid-column: 1; grid-row: 1; }
-  .unit > :nth-child(2) { grid-column: 1; grid-row: 2; }
-  .unit > :nth-child(3) { grid-column: 2; grid-row: 1 / span 2; --ou: min(1cqh, 0.11vw); }
+  .unit > :nth-child(1) { grid-column: 1; grid-row: 1 / span 2; --ou: min(1cqh, 0.11vw); }
+  .unit > :nth-child(2) { grid-column: 2; grid-row: 1; }
+  .unit > :nth-child(3) { grid-column: 2; grid-row: 2; }
   .unit > :nth-child(4) { grid-column: 3; grid-row: 1; }
   .unit > :nth-child(5) { grid-column: 3; grid-row: 2; }
   .row { padding: 14px 8px 0; }

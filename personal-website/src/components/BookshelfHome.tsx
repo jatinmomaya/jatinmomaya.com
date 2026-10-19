@@ -154,11 +154,6 @@ export default function BookshelfHome({ reading, favorites, trips, posts }: Book
 
       <main className={styles.main}>
         <section className={styles.unit} aria-label="Shelf">
-          <div className={styles.lab}><b>Reading now</b></div>
-          <ul className={styles.row} aria-label="Reading now">
-            {reading.map((b) => bookButton(b, `r-${b.id}`, bookPanel(b, 'Reading now'), { ribbon: true }))}
-          </ul>
-
           <ul className={`${styles.row} ${styles.objects}`} aria-label="Things on the shelf">
             <li>
               <button type="button" className={`${styles.obj} ${styles.cam}`} aria-haspopup="dialog"
@@ -239,6 +234,11 @@ export default function BookshelfHome({ reading, favorites, trips, posts }: Book
                 <span className={styles.tag}>Work</span>
               </button>
             </li>
+          </ul>
+
+          <div className={styles.lab}><b>Reading now</b></div>
+          <ul className={styles.row} aria-label="Reading now">
+            {reading.map((b) => bookButton(b, `r-${b.id}`, bookPanel(b, 'Reading now'), { ribbon: true }))}
           </ul>
 
           <div className={styles.lab}><b>Favorites</b></div>
